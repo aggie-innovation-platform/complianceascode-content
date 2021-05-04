@@ -1,8 +1,9 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
-import datetime
 import os.path
+import os
+import time
 
 product_directories = [
     'chromium',
@@ -17,7 +18,7 @@ product_directories = [
     'rhcos4',
     'ol7', 'ol8',
     'opensuse',
-    'rhel7', 'rhel8',
+    'rhel7', 'rhel8', 'rhel9',
     'rhosp10', 'rhosp13',
     'rhv4',
     'sle12', 'sle15',
@@ -60,6 +61,11 @@ puppet_system = "urn:xccdf:fix:script:puppet"
 anaconda_system = "urn:redhat:anaconda:pre"
 cce_uri = "https://nvd.nist.gov/cce/index.cfm"
 stig_ns = "https://public.cyber.mil/stigs/srg-stig-tools/"
+cis_ns = "https://www.cisecurity.org/benchmark/red_hat_linux/"
+hipaa_ns = "https://www.gpo.gov/fdsys/pkg/CFR-2007-title45-vol1/pdf/CFR-2007-title45-vol1-chapA-subchapC.pdf"
+anssi_ns = "http://www.ssi.gouv.fr/administration/bonnes-pratiques/"
+ospp_ns = "https://www.niap-ccevs.org/Profile/PP.cfm"
+cui_ns = 'http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-171.pdf'
 stig_refs = 'https://public.cyber.mil/stigs/'
 disa_cciuri = "https://public.cyber.mil/stigs/cci/"
 ssg_version_uri = \
@@ -124,7 +130,10 @@ oval_header = (
         {0}#linux linux-definitions-schema.xsd">"""
     .format(oval_namespace))
 
-timestamp = datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")
+timestamp = time.strftime(
+    "%Y-%m-%dT%H:%M:%S",
+    time.gmtime(int(os.environ.get('SOURCE_DATE_EPOCH', time.time())))
+)
 
 PKG_MANAGER_TO_SYSTEM = {
     "yum": "rpm",
@@ -157,6 +166,7 @@ FULL_NAME_TO_PRODUCT_MAPPING = {
     "openSUSE": "opensuse",
     "Red Hat Enterprise Linux 7": "rhel7",
     "Red Hat Enterprise Linux 8": "rhel8",
+    "Red Hat Enterprise Linux 9": "rhel9",
     "Red Hat OpenStack Platform 10": "rhosp10",
     "Red Hat OpenStack Platform 13": "rhosp13",
     "Red Hat Virtualization 4": "rhv4",
@@ -191,7 +201,7 @@ MULTI_PLATFORM_MAPPING = {
     "multi_platform_ol": ["ol7", "ol8"],
     "multi_platform_ocp": ["ocp4"],
     "multi_platform_rhcos": ["rhcos4"],
-    "multi_platform_rhel": ["rhel7", "rhel8"],
+    "multi_platform_rhel": ["rhel7", "rhel8", "rhel9"],
     "multi_platform_rhosp": ["rhosp10", "rhosp13"],
     "multi_platform_rhv": ["rhv4"],
     "multi_platform_sle": ["sle12", "sle15"],
@@ -358,7 +368,7 @@ MAKEFILE_ID_TO_PRODUCT_MAP = {
     'sle': 'SUSE Linux Enterprise',
     'vsel': 'McAfee VirusScan Enterprise for Linux',
     'wrlinux': 'WRLinux',
-    'example': 'Example Linux Content',
+    'example': 'Example',
     'ol': 'Oracle Linux',
     'ocp': 'Red Hat OpenShift Container Platform',
     'rhcos': 'Red Hat Enterprise Linux CoreOS',

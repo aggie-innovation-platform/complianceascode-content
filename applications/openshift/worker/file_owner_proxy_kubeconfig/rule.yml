@@ -4,12 +4,25 @@ prodtype: ocp4
 
 title: 'Verify User Who Owns The Worker Proxy Kubeconfig File'
 
-description: '{{{ describe_file_owner(file="/config/kube-proxy-config.yaml", owner="root") }}}'
+description: |-
+  To ensure the Kubernetes ConfigMap is mounted into the sdn daemonset pods with the
+  correct ownership, make sure that the <tt>sdn-config</tt> ConfigMap is mounted using
+  a ConfigMap at the <tt>/config</tt> mount point and that the <tt>sdn</tt> container
+  points to that configuration using the <tt>--proxy-config</tt> command line option.
+  Run:
+  <pre> oc get -nopenshift-sdn ds sdn -ojson | jq -r '.spec.template.spec.containers[] | select(.name == "sdn")'</pre>
+  and ensure the <tt>--proxy-config</tt> parameter points to 
+  <tt>/config/kube-proxy-config.yaml</tt> and that the <tt>config</tt> mount point is
+  mounted from the <tt>sdn-config</tt> ConfigMap.
 
 rationale: |-
-    The worker proxy kubeconfig file contains information about the administrative configuration of the
-    OpenShift cluster that is configured on the system. Protection of this file is
-    critical for OpenShift security.
+  The kubeconfig file for kube-proxy provides permissions to the kube-proxy service.
+  The proxy kubeconfig file contains information about the administrative configuration of the
+  OpenShift cluster that is configured on the system. Protection of this file is
+  critical for OpenShift security.
+
+  The file is provided via a ConfigMap mount, so the kubelet itself makes sure that the
+  file permissions are appropriate for the container taking it into use.
 
 severity: medium
 
@@ -17,14 +30,16 @@ severity: medium
 #    cce@ocp4: 80633-1
 
 references:
-    cis: 4.1.4
+  cis@ocp4: 4.1.4
 
-ocil_clause: '{{{ ocil_clause_file_owner(file="/config/kube-proxy-config.yaml", owner="root") }}}'
+ocil_clause: 'The kube-proxy configuration ConfigMap mount is mounted with wrong ownership'
 
-ocil: '{{{ ocil_file_owner(file="/config/kube-proxy-config.yaml", owner="root") }}}'
-
-#template:
-#    name: file_owner
-#    vars:
-#        filepath: /config/kube-proxy-config.yaml
-#        fileuid: '0'
+ocil: |-
+  Run the following command:
+  <pre>
+   $ for i in $(oc get pods -n openshift-sdn -l app=sdn -oname)
+     do
+        oc exec -n openshift-sdn $i -- stat -Lc %U:%G /config/kube-proxy-config.yaml
+     done
+  </pre>
+  The output should be <tt>root:root</tt>

@@ -4,7 +4,8 @@ prodtype: rhel7,rhel8,sle15
 
 title: 'Disable Samba'
 
-description: '{{{ describe_service_disable(service="smb") }}}'
+description: |-
+    {{{ describe_service_disable(service="smb") }}}
 
 rationale: |-
     Running a Samba server provides a network-based avenue of attack, and
@@ -17,11 +18,13 @@ identifiers:
     cce@rhel8: CCE-82759-2
 
 references:
+    cis@rhel7: 2.2.12
     cis@rhel8: 2.2.7
     disa: CCI-001436
     cis@sle15: 2.2.12
 
-ocil: '{{{ ocil_service_disabled(service="smb") }}}'
+ocil: |-
+    {{{ ocil_service_disabled(service="smb") }}}
 
 platform: machine
 

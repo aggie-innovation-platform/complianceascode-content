@@ -80,7 +80,7 @@ class Template():
             return False
         if os.path.islink(self.template_root_directory):
             return False
-        template_sources = glob.glob(os.path.join(self.template_path, "*.template"))
+        template_sources = sorted(glob.glob(os.path.join(self.template_path, "*.template")))
         if not os.path.isfile(self.template_yaml_path) and not template_sources:
             return False
         return True
@@ -116,7 +116,7 @@ class Builder(object):
             dir_ = os.path.join(output_dir, lang)
             self.output_dirs[lang] = dir_
         # scan directory structure and dynamically create list of templates
-        for item in os.listdir(self.templates_dir):
+        for item in sorted(os.listdir(self.templates_dir)):
             itempath = os.path.join(self.templates_dir, item)
             maybe_template = Template(templates_dir, item)
             if maybe_template.looks_like_template():
@@ -167,6 +167,21 @@ class Builder(object):
         else:
             return languages
 
+    def process_product_vars(self, all_variables):
+        """
+        Given a dictionary with the format key[@<product>]=value, filter out
+        and only take keys that apply to this product (unqualified or qualified
+        to exactly this product). Returns a new dict.
+        """
+        processed = dict(filter(lambda item: '@' not in item[0], all_variables.items()))
+        suffix = '@' + self.env_yaml['product']
+        for variable in filter(lambda key: key.endswith(suffix), all_variables):
+            new_variable = variable[:-len(suffix)]
+            value = all_variables[variable]
+            processed[new_variable] = value
+
+        return processed
+
     def build_rule(self, rule_id, rule_title, template, langs_to_generate):
         """
         Builds templated content for a given rule for selected languages,
@@ -183,7 +198,7 @@ class Builder(object):
                 "Rule {0} uses template {1} which does not exist.".format(
                     rule_id, template_name))
         try:
-            template_vars = template["vars"]
+            template_vars = self.process_product_vars(template["vars"])
         except KeyError:
             raise ValueError(
                 "Rule {0} does not contain mandatory 'vars:' key under "
@@ -198,8 +213,12 @@ class Builder(object):
         local_env_yaml["rule_title"] = rule_title
         local_env_yaml["products"] = self.env_yaml["product"]
         for lang in langs_to_generate:
-            self.build_lang(
-                rule_id, template_name, template_vars, lang, local_env_yaml)
+            try:
+                self.build_lang(
+                    rule_id, template_name, template_vars, lang, local_env_yaml)
+            except Exception as e:
+                print("Error building templated {0} content for rule {1}".format(lang, rule_id), file=sys.stderr)
+                raise e
 
     def build_extra_ovals(self):
         declaration_path = os.path.join(self.templates_dir, "extra_ovals.yml")
@@ -213,7 +232,7 @@ class Builder(object):
                 oval_def_id, oval_def_id, template, langs_to_generate)
 
     def build_all_rules(self):
-        for rule_file in os.listdir(self.resolved_rules_dir):
+        for rule_file in sorted(os.listdir(self.resolved_rules_dir)):
             rule_path = os.path.join(self.resolved_rules_dir, rule_file)
             try:
                 rule = ssg.build_yaml.Rule.from_yaml(rule_path, self.env_yaml)

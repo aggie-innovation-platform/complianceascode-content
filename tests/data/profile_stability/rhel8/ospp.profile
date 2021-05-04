@@ -161,6 +161,7 @@ selections:
 - partition_for_var
 - partition_for_var_log
 - partition_for_var_log_audit
+- partition_for_var_tmp
 - require_singleuser_auth
 - rsyslog_remote_tls
 - rsyslog_remote_tls_cacert
@@ -185,7 +186,7 @@ selections:
 - sshd_enable_warning_banner
 - sshd_rekey_limit
 - sshd_set_idle_timeout
-- sshd_set_keepalive
+- sshd_set_keepalive_0
 - sshd_use_strong_rng
 - sysctl_fs_protected_hardlinks
 - sysctl_fs_protected_symlinks
@@ -230,6 +231,7 @@ selections:
 - zipl_page_poison_argument
 - zipl_slub_debug_argument
 - zipl_vsyscall_argument
+- var_sshd_set_keepalive=0
 - var_rekey_limit_size=1G
 - var_rekey_limit_time=1hour
 - var_accounts_user_umask=027

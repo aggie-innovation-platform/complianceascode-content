@@ -14,11 +14,12 @@ rationale: |-
 severity: medium
 
 references:
-    cis: 1.1.12
+    cis@ocp4: 1.1.12
 
 ocil_clause: '{{{ ocil_clause_file_owner(file="/var/lib/etcd", owner="root") }}}'
 
-ocil: '{{{ ocil_file_owner(file="/var/lib/etcd", owner="root") }}}'
+ocil: |-
+    {{{ ocil_file_owner(file="/var/lib/etcd", owner="root") }}}
 
 template:
     name: file_owner

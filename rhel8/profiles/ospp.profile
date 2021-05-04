@@ -34,6 +34,7 @@ selections:
     - mount_option_tmp_nodev
     - mount_option_tmp_noexec
     - mount_option_tmp_nosuid
+    - partition_for_var_tmp
     - mount_option_var_tmp_nodev
     - mount_option_var_tmp_noexec
     - mount_option_var_tmp_nosuid
@@ -63,7 +64,8 @@ selections:
     - sshd_disable_empty_passwords
     - sshd_disable_kerb_auth
     - sshd_disable_gssapi_auth
-    - sshd_set_keepalive
+    - var_sshd_set_keepalive=0
+    - sshd_set_keepalive_0
     - sshd_enable_warning_banner
     - sshd_rekey_limit
     - var_rekey_limit_size=1G

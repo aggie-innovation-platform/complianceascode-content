@@ -4,7 +4,8 @@ prodtype: rhel7,rhel8,sle15
 
 title: 'Disable named Service'
 
-description: '{{{ describe_service_disable(service="named") }}}'
+description: |-
+    {{{ describe_service_disable(service="named") }}}
 
 rationale: |-
     All network services involve some risk of compromise due to
@@ -17,6 +18,7 @@ identifiers:
     cce@rhel8: CCE-82409-4
 
 references:
+    cis@rhel7: 2.2.8
     cis@rhel8: 2.2.11
     disa: CCI-000366
     nist: CM-7(a),CM-7(b),CM-6(a)
@@ -28,7 +30,8 @@ references:
     cis-csc: 11,14,3,9
     cis@sle15: 2.2.8
 
-ocil: '{{{ ocil_service_disabled(service="named") }}}'
+ocil: |-
+    {{{ ocil_service_disabled(service="named") }}}
 
 platform: machine
 

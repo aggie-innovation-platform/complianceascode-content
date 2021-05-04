@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 import sys
 import os
@@ -11,7 +11,7 @@ import codecs
 import ssg.build_remediations as remediation
 import ssg.rules
 import ssg.jinja
-import ssg.yaml
+import ssg.environment
 import ssg.utils
 import ssg.xml
 
@@ -49,7 +49,7 @@ def parse_args():
 def main():
     args = parse_args()
 
-    env_yaml = ssg.yaml.open_environment(
+    env_yaml = ssg.environment.open_environment(
         args.build_config_yaml, args.product_yaml)
 
     product = ssg.utils.required_key(env_yaml, "product")
@@ -89,7 +89,7 @@ def collect_fixes(product, rules_dirs, fix_dirs, remediation_type):
     rule_id_to_remediation_map = dict()
     for fixdir in fix_dirs:
         if os.path.isdir(fixdir):
-            for filename in os.listdir(fixdir):
+            for filename in sorted(os.listdir(fixdir)):
                 file_path = os.path.join(fixdir, filename)
                 rule_id, _ = os.path.splitext(filename)
                 rule_id_to_remediation_map[rule_id] = file_path

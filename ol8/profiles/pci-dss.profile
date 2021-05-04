@@ -80,9 +80,7 @@ selections:
     - audit_rules_dac_modification_lsetxattr
     - audit_rules_dac_modification_removexattr
     - audit_rules_dac_modification_setxattr
-    - audit_rules_login_events_faillock
-    - audit_rules_login_events_lastlog
-    - audit_rules_login_events_tallylog
+    - audit_rules_login_events
     - audit_rules_session_events
     - audit_rules_unsuccessful_file_modification_creat
     - audit_rules_unsuccessful_file_modification_ftruncate
@@ -105,7 +103,8 @@ selections:
     - ensure_logrotate_activated
     - sshd_idle_timeout_value=15_minutes
     - sshd_set_idle_timeout
-    - sshd_set_keepalive
+    - var_sshd_set_keepalive=0
+    - sshd_set_keepalive_0
     - display_login_attempts
     - gid_passwd_group_same
     - grub2_audit_argument
@@ -141,3 +140,4 @@ selections:
     - configure_libreswan_crypto_policy
     - configure_ssh_crypto_policy
     - configure_kerberos_crypto_policy
+    - install_hids

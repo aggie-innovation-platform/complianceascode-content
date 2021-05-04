@@ -17,11 +17,12 @@ severity: medium
 #    cce@ocp4: 80633-1
 
 references:
-    cis: 1.1.14
+    cis@ocp4: 1.1.14
 
 ocil_clause: '{{{ ocil_clause_file_group_owner(file="/etc/kubernetes/kubeconfig", group="root") }}}'
 
-ocil: '{{{ ocil_file_group_owner(file="/etc/kubernetes/kubeconfig", group="root") }}}'
+ocil: |-
+    {{{ ocil_file_group_owner(file="/etc/kubernetes/kubeconfig", group="root") }}}
 
 #template:
 #    name: file_groupowner

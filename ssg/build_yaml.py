@@ -114,7 +114,13 @@ class Profile(object):
         self.refine_rules = defaultdict(list)
         self.metadata = None
         self.reference = None
+        # self.platforms is used further in the build system
+        # self.platform is merged into self.platforms
+        # it is here for backward compatibility
+        self.platforms = set()
+        self.cpe_names = set()
         self.platform = None
+
 
     def read_yaml_contents(self, yaml_contents):
         self.title = required_key(yaml_contents, "title")
@@ -126,6 +132,8 @@ class Profile(object):
         if selection_entries:
             self._parse_selections(selection_entries)
         del yaml_contents["selections"]
+        self.platforms = yaml_contents.pop("platforms", set())
+        self.platform = yaml_contents.pop("platform", None)
 
     @classmethod
     def from_yaml(cls, yaml_file, env_yaml=None):
@@ -139,7 +147,18 @@ class Profile(object):
         profile.read_yaml_contents(yaml_contents)
 
         profile.reference = yaml_contents.pop("reference", None)
-        profile.platform = yaml_contents.pop("platform", None)
+        # ensure that content of profile.platform is in profile.platforms as
+        # well
+        if profile.platform is not None:
+            profile.platforms.add(profile.platform)
+
+        if env_yaml:
+            for platform in profile.platforms:
+                try:
+                    profile.cpe_names.add(env_yaml["product_cpes"].get_cpe_name(platform))
+                except CPEDoesNotExist:
+                    print("Unsupported platform '%s' in profile '%s'." % (platform, profile.id_))
+                    raise
 
         # At the moment, metadata is not used to build content
         if "metadata" in yaml_contents:
@@ -163,8 +182,8 @@ class Profile(object):
         if self.extends is not None:
             to_dump["extends"] = self.extends
 
-        if self.platform is not None:
-            to_dump["platform"] = self.platform
+        if self.platforms:
+            to_dump["platforms"] = self.platforms
 
         selections = []
         for item in self.selected:
@@ -206,7 +225,7 @@ class Profile(object):
         else:
             self.selected.append(item)
 
-    def to_xml_element(self, product_cpes):
+    def to_xml_element(self):
         element = ET.Element('Profile')
         element.set("id", self.id_)
         if self.extends:
@@ -219,13 +238,9 @@ class Profile(object):
         if self.reference:
             add_sub_element(element, "reference", escape(self.reference))
 
-        if self.platform:
-            try:
-                platform_cpe = product_cpes.get_cpe_name(self.platform)
-            except KeyError:
-                raise ValueError("Unsupported platform '%s' in profile '%s'." % (self.platform, self.id_))
+        for cpe_name in self.cpe_names:
             plat = ET.SubElement(element, "platform")
-            plat.set("idref", platform_cpe)
+            plat.set("idref", cpe_name)
 
         for selection in self.selected:
             select = ET.Element("select")
@@ -346,6 +361,7 @@ class Profile(object):
         profile.title = self.title
         profile.description = self.description
         profile.extends = self.extends
+        profile.platforms = self.platforms
         profile.platform = self.platform
         profile.selected = list(set(self.selected) - set(other.selected))
         profile.selected.sort()
@@ -634,6 +650,7 @@ class Benchmark(object):
         self.bash_remediation_fns_group = None
         self.groups = {}
         self.rules = {}
+        self.product_cpe_names = []
 
         # This is required for OCIL clauses
         conditional_clause = Value("conditional_clause")
@@ -645,8 +662,8 @@ class Benchmark(object):
         self.add_value(conditional_clause)
 
     @classmethod
-    def from_yaml(cls, yaml_file, id_, product_yaml=None):
-        yaml_contents = open_and_macro_expand(yaml_file, product_yaml)
+    def from_yaml(cls, yaml_file, id_, env_yaml=None):
+        yaml_contents = open_and_macro_expand(yaml_file, env_yaml)
         if yaml_contents is None:
             return None
 
@@ -675,6 +692,9 @@ class Benchmark(object):
         benchmark.version = str(required_key(yaml_contents, "version"))
         del yaml_contents["version"]
 
+        if env_yaml:
+            benchmark.product_cpe_names = env_yaml["product_cpes"].get_product_cpe_names()
+
         if yaml_contents:
             raise RuntimeError("Unparsed YAML data in '%s'.\n\n%s"
                                % (yaml_file, yaml_contents))
@@ -682,7 +702,7 @@ class Benchmark(object):
         return benchmark
 
     def add_profiles_from_dir(self, dir_, env_yaml):
-        for dir_item in os.listdir(dir_):
+        for dir_item in sorted(os.listdir(dir_)):
             dir_item_path = os.path.join(dir_, dir_item)
             if not os.path.isfile(dir_item_path):
                 continue
@@ -717,7 +737,7 @@ class Benchmark(object):
         tree = ET.parse(file_)
         self.bash_remediation_fns_group = tree.getroot()
 
-    def to_xml_element(self, product_cpes):
+    def to_xml_element(self):
         root = ET.Element('Benchmark')
         root.set('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance')
         root.set('xmlns:xhtml', 'http://www.w3.org/1999/xhtml')
@@ -740,8 +760,7 @@ class Benchmark(object):
 
         # The Benchmark applicability is determined by the CPEs
         # defined in the product.yml
-        product_cpe_names = product_cpes.get_product_cpe_names()
-        for cpe_name in product_cpe_names:
+        for cpe_name in self.product_cpe_names:
             plat = ET.SubElement(root, "platform")
             plat.set("idref", cpe_name)
 
@@ -750,7 +769,7 @@ class Benchmark(object):
         ET.SubElement(root, "metadata")
 
         for profile in self.profiles:
-            root.append(profile.to_xml_element(product_cpes))
+            root.append(profile.to_xml_element())
 
         for value in self.values.values():
             root.append(value.to_xml_element())
@@ -766,15 +785,15 @@ class Benchmark(object):
             group = self.groups.get(group_id)
             # Products using application benchmark don't have system or services group
             if group is not None:
-                root.append(group.to_xml_element(product_cpes))
+                root.append(group.to_xml_element())
 
         for rule in self.rules.values():
-            root.append(rule.to_xml_element(product_cpes))
+            root.append(rule.to_xml_element())
 
         return root
 
-    def to_file(self, file_name, product_cpes):
-        root = self.to_xml_element(product_cpes)
+    def to_file(self, file_name, ):
+        root = self.to_xml_element()
         tree = ET.ElementTree(root)
         tree.write(file_name)
 
@@ -783,7 +802,9 @@ class Benchmark(object):
             return
         self.values[value.id_] = value
 
-    def add_group(self, group):
+    # The benchmark is also considered a group, so this function signature needs to match
+    # Group()'s add_group()
+    def add_group(self, group, env_yaml=None):
         if group is None:
             return
         self.groups[group.id_] = group
@@ -807,7 +828,7 @@ class Group(object):
     """Represents XCCDF Group
     """
     ATTRIBUTES_TO_PASS_ON = (
-        "platform",
+        "platforms",
     )
 
     def __init__(self, id_):
@@ -821,6 +842,11 @@ class Group(object):
         self.values = {}
         self.groups = {}
         self.rules = {}
+        # self.platforms is used further in the build system
+        # self.platform is merged into self.platforms
+        # it is here for backward compatibility
+        self.platforms = set()
+        self.cpe_names = set()
         self.platform = None
 
     @classmethod
@@ -840,6 +866,19 @@ class Group(object):
         group.conflicts = yaml_contents.pop("conflicts", [])
         group.requires = yaml_contents.pop("requires", [])
         group.platform = yaml_contents.pop("platform", None)
+        group.platforms = yaml_contents.pop("platforms", set())
+        # ensure that content of group.platform is in group.platforms as
+        # well
+        if group.platform is not None:
+            group.platforms.add(group.platform)
+
+        if env_yaml:
+            for platform in group.platforms:
+                try:
+                    group.cpe_names.add(env_yaml["product_cpes"].get_cpe_name(platform))
+                except CPEDoesNotExist:
+                    print("Unsupported platform '%s' in group '%s'." % (platform, group.id_))
+                    raise
 
         for warning_list in group.warnings:
             if len(warning_list) != 1:
@@ -860,7 +899,7 @@ class Group(object):
                     .format(prodtype=self.prodtype, yaml_file=yaml_file))
                 raise ValueError(msg)
 
-    def to_xml_element(self, product_cpes):
+    def to_xml_element(self):
         group = ET.Element('Group')
         group.set('id', self.id_)
         if self.prodtype != "all":
@@ -872,14 +911,9 @@ class Group(object):
         add_nondata_subelements(group, "requires", "id", self.requires)
         add_nondata_subelements(group, "conflicts", "id", self.conflicts)
 
-        if self.platform:
+        for cpe_name in self.cpe_names:
             platform_el = ET.SubElement(group, "platform")
-            try:
-                platform_cpe = product_cpes.get_cpe_name(self.platform)
-            except CPEDoesNotExist:
-                print("Unsupported platform '%s' in rule '%s'." % (self.platform, self.id_))
-                raise
-            platform_el.set("idref", platform_cpe)
+            platform_el.set("idref", cpe_name)
 
         for _value in self.values.values():
             group.append(_value.to_xml_element())
@@ -897,7 +931,7 @@ class Group(object):
         # Add rules in priority order, first all packages installed, then removed,
         # followed by services enabled, then disabled
         for rule_id in rules_in_group:
-            group.append(self.rules.get(rule_id).to_xml_element(product_cpes))
+            group.append(self.rules.get(rule_id).to_xml_element())
 
         # Add the sub groups after any current level group rules.
         # As package installed/removed and service enabled/disabled rules are usuallly in
@@ -936,12 +970,12 @@ class Group(object):
         groups_in_group = reorder_according_to_ordering(groups_in_group, priority_order)
         for group_id in groups_in_group:
             _group = self.groups[group_id]
-            group.append(_group.to_xml_element(product_cpes))
+            group.append(_group.to_xml_element())
 
         return group
 
-    def to_file(self, file_name, product_cpes):
-        root = self.to_xml_element(product_cpes)
+    def to_file(self, file_name):
+        root = self.to_xml_element()
         tree = ET.ElementTree(root)
         tree.write(file_name)
 
@@ -950,13 +984,23 @@ class Group(object):
             return
         self.values[value.id_] = value
 
-    def add_group(self, group):
+    def add_group(self, group, env_yaml=None):
         if group is None:
             return
-        if self.platform and not group.platform:
-            group.platform = self.platform
+        if self.platforms and not group.platforms:
+            group.platforms = self.platforms
         self.groups[group.id_] = group
         self._pass_our_properties_on_to(group)
+
+        # Once the group has inherited properties, update cpe_names
+        if env_yaml:
+            for platform in group.platforms:
+                try:
+                    group.cpe_names.add(env_yaml["product_cpes"].get_cpe_name(platform))
+                except CPEDoesNotExist:
+                    print("Unsupported platform '%s' in group '%s'." % (platform, self.id_))
+                    raise
+
 
     def _pass_our_properties_on_to(self, obj):
         for attr in self.ATTRIBUTES_TO_PASS_ON:
@@ -966,8 +1010,8 @@ class Group(object):
     def add_rule(self, rule):
         if rule is None:
             return
-        if self.platform and not rule.platform:
-            rule.platform = self.platform
+        if self.platforms and not rule.platforms:
+            rule.platforms = self.platforms
         self.rules[rule.id_] = rule
         self._pass_our_properties_on_to(rule)
 
@@ -993,15 +1037,20 @@ class Rule(object):
         "conflicts": lambda: list(),
         "requires": lambda: list(),
         "platform": lambda: None,
+        "platforms": lambda: set(),
         "inherited_platforms": lambda: list(),
         "template": lambda: None,
+        "definition_location": lambda: None,
     }
+
+    PRODUCT_REFERENCES = ("stigid", "cis",)
 
     def __init__(self, id_):
         self.id_ = id_
         self.prodtype = "all"
         self.title = ""
         self.description = ""
+        self.definition_location = ""
         self.rationale = ""
         self.severity = "unknown"
         self.references = {}
@@ -1012,7 +1061,12 @@ class Rule(object):
         self.warnings = []
         self.requires = []
         self.conflicts = []
+        # self.platforms is used further in the build system
+        # self.platform is merged into self.platforms
+        # it is here for backward compatibility
         self.platform = None
+        self.platforms = set()
+        self.cpe_names = set()
         self.inherited_platforms = [] # platforms inherited from the group
         self.template = None
 
@@ -1041,9 +1095,28 @@ class Rule(object):
             if len(warning_list) != 1:
                 raise ValueError("Only one key/value pair should exist for each dictionary")
 
+        # ensure that content of rule.platform is in rule.platforms as
+        # well
+        if rule.platform is not None:
+            rule.platforms.add(rule.platform)
+
+        # Convert the platform names to CPE names
+        # But only do it if an env_yaml was specified (otherwise there would be no product CPEs
+        # to lookup), and the rule's prodtype matches the product being built
+        if env_yaml and env_yaml["product"] in parse_prodtype(rule.prodtype):
+            for platform in rule.platforms:
+                try:
+                    rule.cpe_names.add(env_yaml["product_cpes"].get_cpe_name(platform))
+                except CPEDoesNotExist:
+                    print("Unsupported platform '%s' in rule '%s'." % (platform, rule.id_))
+                    raise
+
         if yaml_contents:
             raise RuntimeError("Unparsed YAML data in '%s'.\n\n%s"
                                % (yaml_file, yaml_contents))
+
+        if not rule.definition_location:
+            rule.definition_location = yaml_file
 
         rule.validate_prodtype(yaml_file)
         rule.validate_identifiers(yaml_file)
@@ -1081,11 +1154,9 @@ class Rule(object):
             raise RuntimeError(msg)
 
     def _get_product_only_references(self):
-        PRODUCT_REFERENCES = ("stigid",)
-
         product_references = dict()
 
-        for ref in PRODUCT_REFERENCES:
+        for ref in Rule.PRODUCT_REFERENCES:
             start = "{0}@".format(ref)
             for gref, gval in self.references.items():
                 if ref == gref or gref.startswith(start):
@@ -1115,6 +1186,13 @@ class Rule(object):
         general_references = self.references.copy()
         for todel in product_references:
             general_references.pop(todel)
+        for ref in Rule.PRODUCT_REFERENCES:
+            if ref in general_references:
+                msg = "Unexpected reference identifier ({0}) without "
+                msg += "product qualifier ({0}@{1}) while building rule "
+                msg += "{2}"
+                msg = msg.format(ref, product, self.id_)
+                raise ValueError(msg)
 
         to_set = dict(
             identifiers=(self.identifiers, False),
@@ -1236,7 +1314,7 @@ class Rule(object):
                     .format(prodtype=self.prodtype, yaml_file=yaml_file))
                 raise ValueError(msg)
 
-    def to_xml_element(self, product_cpes):
+    def to_xml_element(self):
         rule = ET.Element('Rule')
         rule.set('id', self.id_)
         if self.prodtype != "all":
@@ -1301,19 +1379,14 @@ class Rule(object):
         add_nondata_subelements(rule, "requires", "id", self.requires)
         add_nondata_subelements(rule, "conflicts", "id", self.conflicts)
 
-        if self.platform:
+        for cpe_name in self.cpe_names:
             platform_el = ET.SubElement(rule, "platform")
-            try:
-                platform_cpe = product_cpes.get_cpe_name(self.platform)
-            except CPEDoesNotExist:
-                print("Unsupported platform '%s' in rule '%s'." % (self.platform, self.id_))
-                raise
-            platform_el.set("idref", platform_cpe)
+            platform_el.set("idref", cpe_name)
 
         return rule
 
-    def to_file(self, file_name, product_cpes):
-        root = self.to_xml_element(product_cpes)
+    def to_file(self, file_name):
+        root = self.to_xml_element()
         tree = ET.ElementTree(root)
         tree.write(file_name)
 
@@ -1339,7 +1412,7 @@ class DirectoryLoader(object):
         self.parent_group = None
 
     def _collect_items_to_load(self, guide_directory):
-        for dir_item in os.listdir(guide_directory):
+        for dir_item in sorted(os.listdir(guide_directory)):
             dir_item_path = os.path.join(guide_directory, dir_item)
             _, extension = os.path.splitext(dir_item)
 
@@ -1400,7 +1473,7 @@ class DirectoryLoader(object):
 
         if self.loaded_group:
             if self.parent_group:
-                self.parent_group.add_group(self.loaded_group)
+                self.parent_group.add_group(self.loaded_group, env_yaml=self.env_yaml)
 
             self._process_values()
             self._recurse_into_subdirs()
@@ -1458,7 +1531,8 @@ class BuildLoader(DirectoryLoader):
             self.all_rules.add(rule)
             self.loaded_group.add_rule(rule)
 
-            rule.inherited_platforms.append(self.loaded_group.platform)
+            if self.loaded_group.platforms:
+                rule.inherited_platforms += self.loaded_group.platforms
 
             if self.resolved_rules_dir:
                 output_for_rule = os.path.join(
@@ -1472,5 +1546,5 @@ class BuildLoader(DirectoryLoader):
         return BuildLoader(
             self.profiles_dir, self.bash_remediation_fns, self.env_yaml, self.resolved_rules_dir)
 
-    def export_group_to_file(self, filename, product_cpes):
-        return self.loaded_group.to_file(filename, product_cpes)
+    def export_group_to_file(self, filename):
+        return self.loaded_group.to_file(filename)

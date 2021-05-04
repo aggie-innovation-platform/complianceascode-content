@@ -5,29 +5,60 @@ prodtype: ocp4
 title: 'Verify Permissions on the Worker Proxy Kubeconfig File'
 
 description: |-
-    {{{ describe_file_permissions(file="/config/kube-proxy-config.yaml", perms="0600") }}}
+  To ensure the Kubernetes ConfigMap is mounted into the sdn daemonset pods with the
+  correct permissions, make sure that the <tt>sdn-config</tt> ConfigMap is mounted using
+  restrictive permissions. Check that the <tt>config</tt> VolumeMount mounts the
+  <tt>sdn-config</tt> configMap with permissions set to 420:
+  <pre>
+  {
+  "configMap": {
+    "defaultMode": 420,
+    "name": "sdn-config"
+    },
+  "name": "config"
+  }
+  </pre>
 
 rationale: |-
-    If the worker proxy kubeconfig file is writable by a group-owner or the
-    world the risk of its compromise is increased. The file contains the administration configuration of the
-    OpenShift cluster that is configured on the system. Protection of this file is
-    critical for OpenShift security.
+  The kube-proxy kubeconfig file controls various parameters of the kube-proxy
+  service in the worker node. If used, you should restrict its file permissions
+  to maintain the integrity of the file. The file should be writable by only
+  the administrators on the system.
+
+  The kube-proxy runs with the kubeconfig parameters configured as
+  a Kubernetes ConfigMap instead of a file. In this case, there is no proxy
+  kubeconfig file. But appropriate permissions still need to be set in the
+  ConfigMap mount.
 
 severity: medium
 
-#identifiers:
-#    cce@ocp4: 80633-1
+identifiers:
+  cce@ocp4: CCE-84047-0
+
 
 references:
-    cis: 4.1.3
+  cis@ocp4: 4.1.3
 
-ocil_clause: '{{{ ocil_clause_file_permissions(file="/config/kube-proxy-config.yaml", perms="-rw-------") }}}'
+ocil_clause: 'The kube-proxy configuration ConfigMap mount is mounted using wrong permissions'
 
 ocil: |-
-    {{{ ocil_file_permissions(file="/config/kube-proxy-config.yaml", perms="-rw-------") }}}
+    Run the following command:
+    <pre>$ oc get -nopenshift-sdn ds sdn -ojson | jq -r '.spec.template.spec.volumes[] | select(.configMap.name == "sdn-config") | .configMap.defaultMode'</pre>
+    The output should return a value of <pre>420</pre>.
 
-#template:
-#    name: file_permissions
-#    vars:
-#        filepath: /config/kube-proxy-config.yaml
-#        filemode: '0600'
+warnings:
+- general: |-
+    {{{ openshift_cluster_setting("/apis/apps/v1/namespaces/openshift-sdn/daemonsets/sdn") | indent(4) }}}
+
+template:
+  name: yamlfile_value
+  vars:
+    ocp_data: "true"
+    filepath: /apis/apps/v1/namespaces/openshift-sdn/daemonsets/sdn
+    yamlpath: spec.template.spec.volumes[:].configMap['defaultMode','name']
+    entity_check: "at least one"
+    values:
+    - key: "name"
+      value: "sdn-config"
+    - key: "defaultMode"
+      value: "420"

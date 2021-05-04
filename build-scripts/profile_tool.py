@@ -47,6 +47,21 @@ def parse_args():
     parser_stats.add_argument("--missing-stig-ids", default=False,
                         action="store_true", dest="missing_stig_ids",
                         help="Show rules in STIG profiles that don't have STIG IDs.")
+    parser_stats.add_argument("--missing-cis-refs", default=False,
+                        action="store_true", dest="missing_cis_refs",
+                        help="Show rules in CIS profiles that don't have CIS references.")
+    parser_stats.add_argument("--missing-hipaa-refs", default=False,
+                        action="store_true", dest="missing_hipaa_refs",
+                        help="Show rules in HIPAA profiles that don't have HIPAA references.")
+    parser_stats.add_argument("--missing-anssi-refs", default=False,
+                        action="store_true", dest="missing_anssi_refs",
+                        help="Show rules in ANSSI profiles that don't have ANSSI references.")
+    parser_stats.add_argument("--missing-ospp-refs", default=False,
+                              action="store_true", dest="missing_ospp_refs",
+                              help="Show rules in OSPP profiles that don't have OSPP references.")
+    parser_stats.add_argument("--missing-cui-refs", default=False,
+                              action="store_true", dest="missing_cui_refs",
+                              help="Show rules in CUI profiles that don't have CUI references.")
     parser_stats.add_argument("--missing-ovals", default=False,
                         action="store_true", dest="missing_ovals",
                         help="Show IDs of unimplemented OVAL checks.")
@@ -78,6 +93,9 @@ def parse_args():
     parser_stats.add_argument("--all", default=False,
                         action="store_true", dest="all",
                         help="Show all available statistics.")
+    parser_stats.add_argument("--skip-stats", default=False,
+                              action="store_true", dest="skip_overall_stats",
+                              help="Do not show overall statistics.")
     parser_stats.add_argument("--format", default="plain",
                         choices=["plain", "json", "csv", "html"],
                         help="Which format to use for output.")
@@ -120,6 +138,11 @@ def parse_args():
             args.missing_fixes = True
             args.missing_cces = True
             args.missing_stig_ids = True
+            args.missing_cis_refs = True
+            args.missing_hipaa_refs = True
+            args.missing_anssi_refs = True
+            args.missing_ospp_refs = True
+            args.missing_cui_refs = True
 
     return args
 
@@ -193,6 +216,11 @@ def main():
         content_list = [
             'rules',
             'missing_stig_ids',
+            'missing_cis_refs',
+            'missing_hipaa_refs',
+            'missing_anssi_refs',
+            'missing_ospp_refs',
+            'missing_cui_refs',
             'missing_ovals',
             'missing_bash_fixes',
             'missing_ansible_fixes',

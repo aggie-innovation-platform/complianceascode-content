@@ -1,6 +1,6 @@
 documentation_complete: true
 
-prodtype: ol7,ol8,rhel7,rhel8,rhv4
+prodtype: ol7,ol8,rhel7,rhel8,rhel9,rhv4
 
 title: 'disable the selinuxuser_execstack SELinux Boolean'
 
@@ -10,7 +10,8 @@ description: |-
     to make their stack executable.
     {{{ describe_sebool_disable(sebool="selinuxuser_execstack") }}}
 
-rationale: ""
+rationale: |-
+    Disabling code execution from the stack blocks buffer overflow attacks.
 
 severity: medium
 

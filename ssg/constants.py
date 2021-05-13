@@ -57,6 +57,7 @@ bash_system = "urn:xccdf:fix:script:sh"
 ansible_system = "urn:xccdf:fix:script:ansible"
 ignition_system = "urn:xccdf:fix:script:ignition"
 kubernetes_system = "urn:xccdf:fix:script:kubernetes"
+blueprint_system = "urn:redhat:osbuild:blueprint"
 puppet_system = "urn:xccdf:fix:script:puppet"
 anaconda_system = "urn:redhat:anaconda:pre"
 cce_uri = "https://nvd.nist.gov/cce/index.cfm"
@@ -86,6 +87,9 @@ min_ansible_version = "2.5"
 ansible_version_requirement_pre_task_name = \
     "Verify Ansible meets SCAP-Security-Guide version requirements."
 standard_profiles = ['standard', 'pci-dss', 'desktop', 'server']
+xslt_ns = "http://www.w3.org/1999/XSL/Transform"
+generic_stig_ns = "https://public.cyber.mil/stigs/downloads/" + \
+                  "?_dl_facet_stigs=operating-systems%2Cunix-linux"
 
 
 OVAL_SUB_NS = dict(
@@ -377,3 +381,4 @@ MAKEFILE_ID_TO_PRODUCT_MAP = {
 
 # Application constants
 DEFAULT_UID_MIN = 1000
+DEFAULT_GRUB2_BOOT_PATH = '/boot/grub2'

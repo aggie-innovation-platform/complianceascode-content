@@ -107,6 +107,7 @@ selections:
     - audit_rules_privileged_commands_gpasswd
     - audit_rules_privileged_commands_kmod
     - audit_rules_privileged_commands_mount
+    - audit_rules_privileged_commands_modprobe
     - audit_rules_privileged_commands_newgrp
     - audit_rules_privileged_commands_pam_timestamp_check
     - audit_rules_privileged_commands_passmass
@@ -120,6 +121,7 @@ selections:
     - audit_rules_privileged_commands_sudoedit
     - audit_rules_privileged_commands_umount
     - audit_rules_session_events_utmp
+    - audit_rules_session_events_wtmp
     - audit_rules_suid_privilege_function
     - audit_rules_sysadmin_actions
     - audit_rules_unsuccessful_file_modification_creat
@@ -154,8 +156,10 @@ selections:
     - dconf_gnome_login_banner_text
     - dconf_gnome_screensaver_idle_delay
     - dconf_gnome_screensaver_mode_blank
+    - dir_permissions_library_dirs
     - dir_perms_world_writable_sticky_bits
     - dir_perms_world_writable_system_owned_group
+    - dir_system_commands_group_root_owned
     - disable_ctrlaltdel_burstaction
     - disable_ctrlaltdel_reboot
     - disable_ctrlaltdel_reboot

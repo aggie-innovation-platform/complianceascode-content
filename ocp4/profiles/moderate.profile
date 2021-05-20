@@ -38,7 +38,7 @@ description: |-
     consensus and release processes.
 
 selections:
-    # AC-2
+    # AC-2, AC-7
     - ocp_idp_no_htpasswd
 
     - ocp_allowed_registries_for_import
@@ -50,6 +50,7 @@ selections:
     # AU-9
     - audit_log_forwarding_enabled
 
+    # SC-28 PROTECTION OF INFORMATION AT REST
     # SC-28 (1) PROTECTION OF INFORMATION AT REST | CRYPTOGRAPHIC PROTECTION
     - api_server_encryption_provider_config
     - api_server_encryption_provider_cipher

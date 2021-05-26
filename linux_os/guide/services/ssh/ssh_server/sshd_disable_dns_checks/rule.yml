@@ -1,0 +1,25 @@
+documentation_complete: true
+
+title: 'Disable SSH UseDNS Checks'
+
+description: |-
+    To disable dns client checks, add or correct the following line
+    in <tt>/etc/ssh/sshd_config</tt>:
+    <pre>UseDNS no</pre>
+
+rationale: |-
+    Disabling sshd DNS checks slightly weakens your sshd security.
+    However, if DNS resolution fails, SSH logins still work. If you
+    do not disable sshd checks, DNS resolution failures prevent all logins.
+
+severity: medium
+
+{{{ complete_ocil_entry_sshd_option(default="no", option="UseDNS", value="no") }}}
+
+template:
+    name: sshd_lineinfile
+    vars:
+        missing_parameter_pass: 'false'
+        parameter: UseDNS
+        rule_id: sshd_disable_dns_checks
+        value: 'no'

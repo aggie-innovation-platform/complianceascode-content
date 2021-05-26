@@ -17,6 +17,7 @@ selections:
     - sshd_disable_kerb_auth
     - sshd_disable_rhosts
     - sshd_disable_root_login
+    - sshd_disable_dns_checks
     - sshd_disable_x11_forwarding
     - sshd_do_not_permit_user_env
     - sshd_enable_strictmodes

@@ -96,3 +96,5 @@ selections:
 #    - package_ntp_installed
 #    - service_ntp_enabled
     - service_apport_disabled
+    - var_password_pam_remember=5
+    - accounts_password_pam_pwhistory_remember

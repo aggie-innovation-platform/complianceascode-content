@@ -1,6 +1,6 @@
 documentation_complete: true
 
-prodtype: sle12
+prodtype: sle12,ubuntu1804,ubuntu2004
 
 title: 'Limit Password Reuse'
 
@@ -32,7 +32,7 @@ ocil_clause: |-
      the value of remember is not set equal to or greater than {{{ xccdf_value("var_password_pam_remember") }}}
 
 ocil: |-
-    Check that the SUSE operating system prohibits the reuse of a password for
+    Check that the operating system prohibits the reuse of a password for
     a minimum of <tt>{{{ xccdf_value("var_password_pam_remember") }}}</tt> generations with the following command:
     <pre># grep pam_pwhistory.so /etc/pam.d/common-password
     password requisite pam_pwhistory.so remember={{{ xccdf_value("var_password_pam_remember") }}} use_authtok</pre>

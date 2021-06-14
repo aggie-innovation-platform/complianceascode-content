@@ -287,6 +287,9 @@
           <xsl:if test="$refsource = 'cis-csc'">
             <xsl:value-of select="$cis-cscuri" />
           </xsl:if>
+          <xsl:if test="$refsource = 'tamu'">
+            <xsl:value-of select="$tamuuri" />
+          </xsl:if>
           <xsl:if test="$refsource = 'cjis'">
             <xsl:value-of select="$cjisd-its-uri" />
           </xsl:if>

@@ -98,3 +98,7 @@ selections:
     - service_apport_disabled
     - var_password_pam_remember=5
     - accounts_password_pam_pwhistory_remember
+    - var_password_pam_minlen=20
+    - accounts_password_pam_minlen
+    - var_password_pam_maxrepeat=1
+    - accounts_password_pam_maxrepeat

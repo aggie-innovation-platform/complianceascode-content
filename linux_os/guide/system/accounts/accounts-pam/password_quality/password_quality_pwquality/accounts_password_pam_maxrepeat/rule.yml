@@ -1,6 +1,6 @@
 documentation_complete: true
 
-prodtype: fedora,ol7,ol8,rhel7,rhel8,rhel9,rhv4,wrlinux1019
+prodtype: fedora,ol7,ol8,rhel7,rhel8,rhel9,rhv4,wrlinux1019,ubuntu1804,ubuntu2004
 
 title: 'Set Password Maximum Consecutive Repeating Characters'
 
@@ -41,6 +41,7 @@ references:
     iso27001-2013: A.18.1.4,A.7.1.1,A.9.2.1,A.9.2.2,A.9.2.3,A.9.2.4,A.9.2.6,A.9.3.1,A.9.4.2,A.9.4.3
     cis-csc: 1,12,15,16,5
     stigid@rhel8: RHEL-08-020150
+    tamu: IA-5(9.3.5)
 
 ocil_clause: 'maxrepeat is not found or not greater than or equal to the required value'
 

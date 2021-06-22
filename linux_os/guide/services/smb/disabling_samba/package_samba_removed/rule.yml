@@ -1,6 +1,6 @@
 documentation_complete: true
 
-prodtype: rhel7,rhel8,rhel9
+prodtype: rhel7,rhel8,rhel9,sle15
 
 title: 'Uninstall Samba Package'
 
@@ -14,6 +14,9 @@ severity: unknown
 
 identifiers:
     cce@rhel7: CCE-80278-5
+
+references:
+    cis@rhel7: 2.2.11
 
 {{{ complete_ocil_entry_package(package="samba") }}}
 

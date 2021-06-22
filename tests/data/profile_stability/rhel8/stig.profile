@@ -31,6 +31,7 @@ selections:
 - accounts_maximum_age_login_defs
 - accounts_minimum_age_login_defs
 - accounts_no_uid_except_zero
+- accounts_password_all_shadowed_sha512
 - accounts_password_minlen_login_defs
 - accounts_password_pam_dcredit
 - accounts_password_pam_difok
@@ -40,9 +41,10 @@ selections:
 - accounts_password_pam_minclass
 - accounts_password_pam_minlen
 - accounts_password_pam_ocredit
+- accounts_password_pam_pwhistory_remember_password_auth
+- accounts_password_pam_pwhistory_remember_system_auth
 - accounts_password_pam_retry
 - accounts_password_pam_ucredit
-- accounts_password_pam_unix_remember
 - accounts_password_pam_unix_rounds_password_auth
 - accounts_password_pam_unix_rounds_system_auth
 - accounts_password_set_max_life_existing
@@ -61,6 +63,8 @@ selections:
 - aide_scan_notification
 - aide_verify_acls
 - aide_verify_ext_attributes
+- audit_rules_suid_privilege_function
+- auditd_audispd_configure_sufficiently_large_partition
 - auditd_data_disk_error_action
 - auditd_data_disk_full_action
 - auditd_data_retention_action_mail_acct
@@ -78,6 +82,7 @@ selections:
 - configure_bind_crypto_policy
 - configure_crypto_policy
 - configure_firewalld_ports
+- configure_gnutls_tls_crypto_policy
 - configure_kerberos_crypto_policy
 - configure_libreswan_crypto_policy
 - configure_openssl_crypto_policy
@@ -216,6 +221,7 @@ selections:
 - require_emergency_target_auth
 - require_singleuser_auth
 - rsyslog_cron_logging
+- rsyslog_remote_access_monitoring
 - rsyslog_remote_loghost
 - security_patches_up_to_date
 - selinux_policytype
@@ -284,6 +290,7 @@ selections:
 - sysctl_net_ipv6_conf_default_accept_source_route
 - sysctl_user_max_user_namespaces
 - tftpd_uses_secure_mode
+- usbguard_generate_policy
 - wireless_disable_interfaces
 - xwindows_remove_packages
 - var_rekey_limit_size=1G
@@ -297,7 +304,8 @@ selections:
 - var_password_pam_minclass=4
 - var_accounts_minimum_age_login_defs=1
 - var_accounts_max_concurrent_login_sessions=10
-- var_password_pam_unix_remember=5
+- var_password_pam_remember=5
+- var_password_pam_remember_control_flag=required
 - var_selinux_state=enforcing
 - var_selinux_policy_name=targeted
 - var_accounts_password_minlen_login_defs=15

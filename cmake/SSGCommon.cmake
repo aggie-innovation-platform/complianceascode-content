@@ -302,24 +302,40 @@ macro(ssg_build_remediations PRODUCT)
     if ("${PRODUCT_ANSIBLE_REMEDIATION_ENABLED}")
         # only enable the ansible syntax checks if we are using openscap 1.2.17 or higher
         # older openscap causes syntax errors, see https://github.com/OpenSCAP/openscap/pull/977
-        if (ANSIBLE_PLAYBOOK_EXECUTABLE AND "${OSCAP_VERSION}" VERSION_GREATER "1.2.16")
+        if (SSG_ANSIBLE_PLAYBOOKS_ENABLED AND ANSIBLE_PLAYBOOK_EXECUTABLE AND "${OSCAP_VERSION}" VERSION_GREATER "1.2.16")
             add_test(
                 NAME "ansible-playbook-syntax-check-${PRODUCT}"
                 COMMAND "${CMAKE_SOURCE_DIR}/tests/ansible_playbook_check.sh" "${ANSIBLE_PLAYBOOK_EXECUTABLE}" "${CMAKE_BINARY_DIR}/ansible" "${PRODUCT}"
             )
         endif()
         if (ANSIBLE_CHECKS)
-            if (ANSIBLE_LINT_EXECUTABLE AND "${OSCAP_VERSION}" VERSION_GREATER "1.2.16")
-                add_test(
-                    NAME "ansible-playbook-ansible-lint-check-${PRODUCT}"
-                    COMMAND "${CMAKE_SOURCE_DIR}/tests/ansible_playbook_check.sh" "${ANSIBLE_LINT_EXECUTABLE}" "${CMAKE_BINARY_DIR}/${PRODUCT}/playbooks" "${CMAKE_SOURCE_DIR}/tests/ansible-lint_config.yml"
-                )
+            if (SSG_ANSIBLE_PLAYBOOKS_PER_RULE_ENABLED)
+                if (ANSIBLE_LINT_EXECUTABLE)
+                    add_test(
+                        NAME "ansible-playbook-per-rule-ansible-lint-check-${PRODUCT}"
+                        COMMAND "${CMAKE_SOURCE_DIR}/tests/ansible_playbook_check.sh" "${ANSIBLE_LINT_EXECUTABLE}" "${CMAKE_BINARY_DIR}/${PRODUCT}/playbooks" "${CMAKE_SOURCE_DIR}/tests/ansible-lint_config.yml"
+                    )
+                endif()
+                if (YAMLLINT_EXECUTABLE)
+                    add_test(
+                        NAME "ansible-playbook-per-rule-yamllint-check-${PRODUCT}"
+                        COMMAND "${CMAKE_SOURCE_DIR}/tests/ansible_playbook_check.sh" "${YAMLLINT_EXECUTABLE}" "${CMAKE_BINARY_DIR}/${PRODUCT}/playbooks" "${CMAKE_SOURCE_DIR}/tests/yamllint_config.yml"
+                    )
+                endif()
             endif()
-            if (YAMLLINT_EXECUTABLE AND "${OSCAP_VERSION}" VERSION_GREATER "1.2.16")
-                add_test(
-                    NAME "ansible-playbook-yamllint-check-${PRODUCT}"
-                    COMMAND "${CMAKE_SOURCE_DIR}/tests/ansible_playbook_check.sh" "${YAMLLINT_EXECUTABLE}" "${CMAKE_BINARY_DIR}/${PRODUCT}/playbooks" "${CMAKE_SOURCE_DIR}/tests/yamllint_config.yml"
-                )
+            if (SSG_ANSIBLE_PLAYBOOKS_ENABLED)
+                if (ANSIBLE_LINT_EXECUTABLE AND "${OSCAP_VERSION}" VERSION_GREATER "1.2.16")
+                    add_test(
+                        NAME "ansible-playbook-per-profile-ansible-lint-check-${PRODUCT}"
+                        COMMAND "${CMAKE_SOURCE_DIR}/tests/ansible_playbook_check.sh" "${ANSIBLE_LINT_EXECUTABLE}" "${CMAKE_BINARY_DIR}/ansible" "${CMAKE_SOURCE_DIR}/tests/ansible-lint_config.yml"
+                    )
+                endif()
+                if (YAMLLINT_EXECUTABLE AND "${OSCAP_VERSION}" VERSION_GREATER "1.2.16")
+                    add_test(
+                        NAME "ansible-playbook-per-profile-yamllint-check-${PRODUCT}"
+                        COMMAND "${CMAKE_SOURCE_DIR}/tests/ansible_playbook_check.sh" "${YAMLLINT_EXECUTABLE}" "${CMAKE_BINARY_DIR}/ansible" "${CMAKE_SOURCE_DIR}/tests/yamllint_config.yml"
+                    )
+                endif()
             endif()
         endif()
     endif()
@@ -554,19 +570,14 @@ endmacro()
 macro(ssg_build_sds PRODUCT)
     if("${PRODUCT}" MATCHES "rhel(6|7)")
         add_custom_command(
-            OUTPUT "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml"
-            OUTPUT "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds-1.2.xml"
+            OUTPUT "${CMAKE_BINARY_DIR}/${PRODUCT}/ssg-${PRODUCT}-ds-base.xml"
             WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
             # use --skip-valid here to avoid repeatedly validating everything
-            COMMAND "${OPENSCAP_OSCAP_EXECUTABLE}" ds sds-compose --skip-valid "ssg-${PRODUCT}-xccdf-1.2.xml" "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml"
-            COMMAND "${SED_EXECUTABLE}" -i 's/schematron-version="[0-9].[0-9]"/schematron-version="1.2"/' "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml"
-            COMMAND "${OPENSCAP_OSCAP_EXECUTABLE}" ds sds-add --skip-valid "ssg-${PRODUCT}-cpe-dictionary.xml" "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml"
-            COMMAND "${OPENSCAP_OSCAP_EXECUTABLE}" ds sds-add --skip-valid "ssg-${PRODUCT}-pcidss-xccdf-1.2.xml" "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml"
-            COMMAND env "PYTHONPATH=$ENV{PYTHONPATH}" "${PYTHON_EXECUTABLE}" "${SSG_BUILD_SCRIPTS}/sds_move_ocil_to_checks.py" "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml" "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml"
-            COMMAND env "PYTHONPATH=$ENV{PYTHONPATH}" "${PYTHON_EXECUTABLE}" "${SSG_BUILD_SCRIPTS}/update_sds_version.py" --version "1.2" --input "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml" --output "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds-1.2.xml"
-            COMMAND env "PYTHONPATH=$ENV{PYTHONPATH}" "${PYTHON_EXECUTABLE}" "${SSG_BUILD_SCRIPTS}/update_sds_version.py" --version "1.3" --input "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml" --output "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml"
-            COMMAND "${XMLLINT_EXECUTABLE}" --nsclean --format --output "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml" "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml"
-            COMMAND "${XMLLINT_EXECUTABLE}" --nsclean --format --output "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds-1.2.xml" "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds-1.2.xml"
+            COMMAND "${OPENSCAP_OSCAP_EXECUTABLE}" ds sds-compose --skip-valid "ssg-${PRODUCT}-xccdf-1.2.xml" "${CMAKE_BINARY_DIR}/${PRODUCT}/ssg-${PRODUCT}-ds-base.xml"
+            COMMAND "${SED_EXECUTABLE}" -i 's/schematron-version="[0-9].[0-9]"/schematron-version="1.2"/' "${CMAKE_BINARY_DIR}/${PRODUCT}/ssg-${PRODUCT}-ds-base.xml"
+            COMMAND "${OPENSCAP_OSCAP_EXECUTABLE}" ds sds-add --skip-valid "ssg-${PRODUCT}-cpe-dictionary.xml" "${CMAKE_BINARY_DIR}/${PRODUCT}/ssg-${PRODUCT}-ds-base.xml"
+            COMMAND "${OPENSCAP_OSCAP_EXECUTABLE}" ds sds-add --skip-valid "ssg-${PRODUCT}-pcidss-xccdf-1.2.xml" "${CMAKE_BINARY_DIR}/${PRODUCT}/ssg-${PRODUCT}-ds-base.xml"
+            COMMAND env "PYTHONPATH=$ENV{PYTHONPATH}" "${PYTHON_EXECUTABLE}" "${SSG_BUILD_SCRIPTS}/sds_move_ocil_to_checks.py" "${CMAKE_BINARY_DIR}/${PRODUCT}/ssg-${PRODUCT}-ds-base.xml" "${CMAKE_BINARY_DIR}/${PRODUCT}/ssg-${PRODUCT}-ds-base.xml"
             DEPENDS generate-ssg-${PRODUCT}-xccdf-1.2.xml
             DEPENDS "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-xccdf-1.2.xml"
             DEPENDS generate-ssg-${PRODUCT}-oval.xml
@@ -578,22 +589,17 @@ macro(ssg_build_sds PRODUCT)
             DEPENDS "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-cpe-oval.xml"
             DEPENDS generate-ssg-${PRODUCT}-pcidss-xccdf-1.2.xml
             DEPENDS "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-pcidss-xccdf-1.2.xml"
-            COMMENT "[${PRODUCT}-content] generating ssg-${PRODUCT}-ds.xml and ssg-${PRODUCT}-ds-1.2.xml"
+            COMMENT "[${PRODUCT}-content] generating ssg-${PRODUCT}-ds-base.xml"
         )
     else()
         add_custom_command(
-            OUTPUT "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml"
-            OUTPUT "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds-1.2.xml"
+            OUTPUT "${CMAKE_BINARY_DIR}/${PRODUCT}/ssg-${PRODUCT}-ds-base.xml"
             WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
             # use --skip-valid here to avoid repeatedly validating everything
-            COMMAND "${OPENSCAP_OSCAP_EXECUTABLE}" ds sds-compose --skip-valid "ssg-${PRODUCT}-xccdf-1.2.xml" "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml"
-            COMMAND "${SED_EXECUTABLE}" -i 's/schematron-version="[0-9].[0-9]"/schematron-version="1.2"/' "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml"
-            COMMAND "${OPENSCAP_OSCAP_EXECUTABLE}" ds sds-add --skip-valid "ssg-${PRODUCT}-cpe-dictionary.xml" "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml"
-            COMMAND env "PYTHONPATH=$ENV{PYTHONPATH}" "${PYTHON_EXECUTABLE}" "${SSG_BUILD_SCRIPTS}/sds_move_ocil_to_checks.py" "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml" "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml"
-            COMMAND env "PYTHONPATH=$ENV{PYTHONPATH}" "${PYTHON_EXECUTABLE}" "${SSG_BUILD_SCRIPTS}/update_sds_version.py" --version "1.2" --input "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml" --output "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds-1.2.xml"
-            COMMAND env "PYTHONPATH=$ENV{PYTHONPATH}" "${PYTHON_EXECUTABLE}" "${SSG_BUILD_SCRIPTS}/update_sds_version.py" --version "1.3" --input "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml" --output "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml"
-            COMMAND "${XMLLINT_EXECUTABLE}" --nsclean --format --output "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml" "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml"
-            COMMAND "${XMLLINT_EXECUTABLE}" --nsclean --format --output "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds-1.2.xml" "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds-1.2.xml"
+            COMMAND "${OPENSCAP_OSCAP_EXECUTABLE}" ds sds-compose --skip-valid "ssg-${PRODUCT}-xccdf-1.2.xml" "${CMAKE_BINARY_DIR}/${PRODUCT}/ssg-${PRODUCT}-ds-base.xml"
+            COMMAND "${SED_EXECUTABLE}" -i 's/schematron-version="[0-9].[0-9]"/schematron-version="1.2"/' "${CMAKE_BINARY_DIR}/${PRODUCT}/ssg-${PRODUCT}-ds-base.xml"
+            COMMAND "${OPENSCAP_OSCAP_EXECUTABLE}" ds sds-add --skip-valid "ssg-${PRODUCT}-cpe-dictionary.xml" "${CMAKE_BINARY_DIR}/${PRODUCT}/ssg-${PRODUCT}-ds-base.xml"
+            COMMAND env "PYTHONPATH=$ENV{PYTHONPATH}" "${PYTHON_EXECUTABLE}" "${SSG_BUILD_SCRIPTS}/sds_move_ocil_to_checks.py" "${CMAKE_BINARY_DIR}/${PRODUCT}/ssg-${PRODUCT}-ds-base.xml" "${CMAKE_BINARY_DIR}/${PRODUCT}/ssg-${PRODUCT}-ds-base.xml"
             DEPENDS generate-ssg-${PRODUCT}-xccdf-1.2.xml
             DEPENDS "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-xccdf-1.2.xml"
             DEPENDS generate-ssg-${PRODUCT}-oval.xml
@@ -603,14 +609,39 @@ macro(ssg_build_sds PRODUCT)
             DEPENDS generate-ssg-${PRODUCT}-cpe-dictionary.xml
             DEPENDS "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-cpe-dictionary.xml"
             DEPENDS "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-cpe-oval.xml"
-            COMMENT "[${PRODUCT}-content] generating ssg-${PRODUCT}-ds.xml and ssg-${PRODUCT}-ds-1.2.xml"
+            COMMENT "[${PRODUCT}-content] generating ssg-${PRODUCT}-ds-base.xml"
         )
     endif()
-    add_custom_target(
-        generate-ssg-${PRODUCT}-ds.xml
-        DEPENDS "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml"
-        DEPENDS "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds-1.2.xml"
+
+    add_custom_command(
+        OUTPUT "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml"
+        WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+        COMMAND env "PYTHONPATH=$ENV{PYTHONPATH}" "${PYTHON_EXECUTABLE}" "${SSG_BUILD_SCRIPTS}/update_sds_version.py" --version "1.3" --input "${CMAKE_BINARY_DIR}/${PRODUCT}/ssg-${PRODUCT}-ds-base.xml" --output "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml"
+        COMMAND "${XMLLINT_EXECUTABLE}" --nsclean --format --output "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml" "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml"
+        DEPENDS "${CMAKE_BINARY_DIR}/${PRODUCT}/ssg-${PRODUCT}-ds-base.xml"
+        COMMENT "[${PRODUCT}-content] Updating data stream ssg-${PRODUCT}-ds.xml to 1.3"
     )
+
+    if(SSG_BUILD_SCAP_12_DS)
+        add_custom_command(
+            OUTPUT "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds-1.2.xml"
+            WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+            COMMAND env "PYTHONPATH=$ENV{PYTHONPATH}" "${PYTHON_EXECUTABLE}" "${SSG_BUILD_SCRIPTS}/update_sds_version.py" --version "1.2" --input "${CMAKE_BINARY_DIR}/${PRODUCT}/ssg-${PRODUCT}-ds-base.xml" --output "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds-1.2.xml"
+            COMMAND "${XMLLINT_EXECUTABLE}" --nsclean --format --output "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds-1.2.xml" "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds-1.2.xml"
+            DEPENDS "${CMAKE_BINARY_DIR}/${PRODUCT}/ssg-${PRODUCT}-ds-base.xml"
+            COMMENT "[${PRODUCT}-content] generating ssg-${PRODUCT}-ds-1.2.xml"
+        )
+        add_custom_target(
+            generate-ssg-${PRODUCT}-ds.xml
+            DEPENDS "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml"
+            DEPENDS "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds-1.2.xml"
+        )
+    else()
+        add_custom_target(
+            generate-ssg-${PRODUCT}-ds.xml
+            DEPENDS "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml"
+        )
+    endif()
 
     if("${PRODUCT}" MATCHES "rhel(6|7|8|9)")
         add_test(
@@ -626,10 +657,12 @@ macro(ssg_build_sds PRODUCT)
             NAME "validate-ssg-${PRODUCT}-ds.xml"
             COMMAND "${OPENSCAP_OSCAP_EXECUTABLE}" ds sds-validate "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml"
         )
-        add_test(
-            NAME "validate-ssg-${PRODUCT}-ds-1.2.xml"
-            COMMAND "${OPENSCAP_OSCAP_EXECUTABLE}" ds sds-validate "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds-1.2.xml"
-        )
+        if(SSG_BUILD_SCAP_12_DS)
+            add_test(
+                NAME "validate-ssg-${PRODUCT}-ds-1.2.xml"
+                COMMAND "${OPENSCAP_OSCAP_EXECUTABLE}" ds sds-validate "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds-1.2.xml"
+            )
+        endif()
     endif()
 endmacro()
 
@@ -640,7 +673,6 @@ macro(ssg_build_html_guides PRODUCT)
         COMMAND env "PYTHONPATH=$ENV{PYTHONPATH}" "${PYTHON_EXECUTABLE}" "${SSG_BUILD_SCRIPTS}/build_all_guides.py" --input "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml" --output "${CMAKE_BINARY_DIR}/guides" build
         DEPENDS generate-ssg-${PRODUCT}-ds.xml
         DEPENDS "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml"
-        DEPENDS "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds-1.2.xml"
         COMMENT "[${PRODUCT}-guides] generating HTML guides for all profiles in ssg-${PRODUCT}-ds.xml"
     )
     add_custom_target(
@@ -734,7 +766,7 @@ macro(ssg_build_product PRODUCT)
     # Enforce folder naming rules, we require SSG contributors to use
     # scap-security-guide/${PRODUCT}/ for all products. This makes it easier
     # to find relevant source-code and build just the relevant product.
-    get_filename_component(EXPECTED_CMAKELISTS "${CMAKE_SOURCE_DIR}/${PRODUCT}/CMakeLists.txt" ABSOLUTE)
+    get_filename_component(EXPECTED_CMAKELISTS "${CMAKE_SOURCE_DIR}/products/${PRODUCT}/CMakeLists.txt" ABSOLUTE)
     get_filename_component(ACTUAL_CMAKELISTS "${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.txt" ABSOLUTE)
 
     if (NOT "${ACTUAL_CMAKELISTS}" STREQUAL "${EXPECTED_CMAKELISTS}")
@@ -758,8 +790,13 @@ macro(ssg_build_product PRODUCT)
     ssg_build_xccdf_unlinked(${PRODUCT})
     ssg_build_ocil_unlinked(${PRODUCT})
     ssg_build_remediations(${PRODUCT})
-    if ("${PRODUCT_ANSIBLE_REMEDIATION_ENABLED}")
+
+    if ("${PRODUCT_ANSIBLE_REMEDIATION_ENABLED}" AND SSG_ANSIBLE_PLAYBOOKS_PER_RULE_ENABLED)
         ssg_build_ansible_playbooks(${PRODUCT})
+        add_dependencies(
+            ${PRODUCT}-content
+            generate-${PRODUCT}-ansible-playbooks
+        )
     endif()
     ssg_build_xccdf_with_remediations(${PRODUCT})
     ssg_build_oval_unlinked(${PRODUCT})
@@ -789,11 +826,7 @@ macro(ssg_build_product PRODUCT)
 
     add_dependencies(zipfile "generate-ssg-${PRODUCT}-ds.xml")
 
-    if ("${PRODUCT_ANSIBLE_REMEDIATION_ENABLED}")
-        add_dependencies(
-            ${PRODUCT}-content
-            generate-${PRODUCT}-ansible-playbooks
-        )
+    if ("${PRODUCT_ANSIBLE_REMEDIATION_ENABLED}" AND SSG_ANSIBLE_PLAYBOOKS_ENABLED)
         ssg_build_profile_playbooks(${PRODUCT})
         add_custom_target(
             ${PRODUCT}-profile-playbooks
@@ -803,7 +836,7 @@ macro(ssg_build_product PRODUCT)
         add_dependencies(zipfile ${PRODUCT}-profile-playbooks)
     endif()
 
-    if ("${PRODUCT_BASH_REMEDIATION_ENABLED}")
+    if ("${PRODUCT_BASH_REMEDIATION_ENABLED}" AND SSG_BASH_SCRIPTS_ENABLED)
         ssg_build_profile_bash_scripts(${PRODUCT})
         add_custom_target(
             ${PRODUCT}-profile-bash-scripts
@@ -854,8 +887,10 @@ macro(ssg_build_product PRODUCT)
     install(FILES "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds.xml"
         DESTINATION "${SSG_CONTENT_INSTALL_DIR}")
 
-    install(FILES "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds-1.2.xml"
-        DESTINATION "${SSG_CONTENT_INSTALL_DIR}")
+    if(SSG_BUILD_SCAP_12_DS)
+        install(FILES "${CMAKE_BINARY_DIR}/ssg-${PRODUCT}-ds-1.2.xml"
+            DESTINATION "${SSG_CONTENT_INSTALL_DIR}")
+    endif()
 
     # This is a common cmake trick, we need the globbing to happen at build time
     # and not configure time.
@@ -873,30 +908,48 @@ macro(ssg_build_product PRODUCT)
         endif()
         "
     )
-    install(
-        CODE "
-        file(GLOB ROLE_FILES \"${CMAKE_BINARY_DIR}/ansible/${PRODUCT}-playbook-*.yml\") \n
-        if(NOT IS_ABSOLUTE ${SSG_ANSIBLE_ROLE_INSTALL_DIR})
-            file(INSTALL DESTINATION \"\${CMAKE_INSTALL_PREFIX}/${SSG_ANSIBLE_ROLE_INSTALL_DIR}\"
-                TYPE FILE FILES \${ROLE_FILES})
-        else()
-            file(INSTALL DESTINATION \"${SSG_ANSIBLE_ROLE_INSTALL_DIR}\"
-                TYPE FILE FILES \${ROLE_FILES})
-        endif()
-        "
-    )
-    install(
-        CODE "
-        file(GLOB ROLE_FILES \"${CMAKE_BINARY_DIR}/bash/${PRODUCT}-script-*.sh\") \n
-        if(NOT IS_ABSOLUTE ${SSG_BASH_ROLE_INSTALL_DIR})
-            file(INSTALL DESTINATION \"\${CMAKE_INSTALL_PREFIX}/${SSG_BASH_ROLE_INSTALL_DIR}\"
-                TYPE FILE FILES \${ROLE_FILES})
-        else()
-            file(INSTALL DESTINATION \"${SSG_BASH_ROLE_INSTALL_DIR}\"
-                TYPE FILE FILES \${ROLE_FILES})
-        endif()
-        "
-    )
+    if(SSG_ANSIBLE_PLAYBOOKS_ENABLED)
+        install(
+            CODE "
+            file(GLOB ROLE_FILES \"${CMAKE_BINARY_DIR}/ansible/${PRODUCT}-playbook-*.yml\") \n
+            if(NOT IS_ABSOLUTE ${SSG_ANSIBLE_ROLE_INSTALL_DIR})
+                file(INSTALL DESTINATION \"\${CMAKE_INSTALL_PREFIX}/${SSG_ANSIBLE_ROLE_INSTALL_DIR}\"
+                    TYPE FILE FILES \${ROLE_FILES})
+            else()
+                file(INSTALL DESTINATION \"${SSG_ANSIBLE_ROLE_INSTALL_DIR}\"
+                    TYPE FILE FILES \${ROLE_FILES})
+            endif()
+            "
+        )
+    endif()
+    if(SSG_BASH_SCRIPTS_ENABLED)
+        install(
+            CODE "
+            file(GLOB ROLE_FILES \"${CMAKE_BINARY_DIR}/bash/${PRODUCT}-script-*.sh\") \n
+            if(NOT IS_ABSOLUTE ${SSG_BASH_ROLE_INSTALL_DIR})
+                file(INSTALL DESTINATION \"\${CMAKE_INSTALL_PREFIX}/${SSG_BASH_ROLE_INSTALL_DIR}\"
+                    TYPE FILE FILES \${ROLE_FILES})
+            else()
+                file(INSTALL DESTINATION \"${SSG_BASH_ROLE_INSTALL_DIR}\"
+                    TYPE FILE FILES \${ROLE_FILES})
+            endif()
+            "
+        )
+    endif()
+    if(SSG_ANSIBLE_PLAYBOOKS_PER_RULE_ENABLED)
+        install(
+            CODE "
+            file(GLOB PLAYBOOK_PER_RULE_FILES \"${CMAKE_BINARY_DIR}/${PRODUCT}/playbooks/*\") \n
+            if(NOT IS_ABSOLUTE ${SSG_ANSIBLE_ROLE_INSTALL_DIR}/rule_playbooks)
+                file(INSTALL DESTINATION \"\${CMAKE_INSTALL_PREFIX}/${SSG_ANSIBLE_ROLE_INSTALL_DIR}/rule_playbooks/${PRODUCT}\"
+                    TYPE FILE FILES \${PLAYBOOK_PER_RULE_FILES})
+            else()
+                file(INSTALL DESTINATION \"${SSG_ANSIBLE_ROLE_INSTALL_DIR}/rule_playbooks/${PRODUCT}\"
+                    TYPE FILE FILES \${PLAYBOOK_PER_RULE_FILES})
+            endif()
+            "
+        )
+    endif()
 
     # grab all the kickstarts (if any) and install them
     file(GLOB KICKSTART_FILES "${CMAKE_CURRENT_SOURCE_DIR}/kickstart/ssg-${PRODUCT}-*-ks.cfg")
@@ -922,22 +975,34 @@ macro(ssg_build_derivative_product ORIGINAL SHORTNAME DERIVATIVE)
 
     add_custom_command(
         OUTPUT "${CMAKE_BINARY_DIR}/ssg-${DERIVATIVE}-ds.xml"
-        OUTPUT "${CMAKE_BINARY_DIR}/ssg-${DERIVATIVE}-ds-1.2.xml"
-        COMMAND env "PYTHONPATH=$ENV{PYTHONPATH}" "${PYTHON_EXECUTABLE}" "${SSG_BUILD_SCRIPTS}/enable_derivatives.py" --enable-${SHORTNAME} -i "${CMAKE_BINARY_DIR}/ssg-${ORIGINAL}-ds-1.2.xml" -o "${CMAKE_BINARY_DIR}/ssg-${DERIVATIVE}-ds-1.2.xml" "${CMAKE_CURRENT_SOURCE_DIR}/product.yml" ${DERIVATIVE} --id-name ssg
         COMMAND env "PYTHONPATH=$ENV{PYTHONPATH}" "${PYTHON_EXECUTABLE}" "${SSG_BUILD_SCRIPTS}/enable_derivatives.py" --enable-${SHORTNAME} -i "${CMAKE_BINARY_DIR}/ssg-${ORIGINAL}-ds.xml" -o "${CMAKE_BINARY_DIR}/ssg-${DERIVATIVE}-ds.xml" "${CMAKE_CURRENT_SOURCE_DIR}/product.yml" ${DERIVATIVE} --id-name ssg
         COMMAND "${XMLLINT_EXECUTABLE}" --nsclean --format --output "${CMAKE_BINARY_DIR}/ssg-${DERIVATIVE}-ds.xml" "${CMAKE_BINARY_DIR}/ssg-${DERIVATIVE}-ds.xml"
-        COMMAND "${XMLLINT_EXECUTABLE}" --nsclean --format --output "${CMAKE_BINARY_DIR}/ssg-${DERIVATIVE}-ds-1.2.xml" "${CMAKE_BINARY_DIR}/ssg-${DERIVATIVE}-ds-1.2.xml"
         DEPENDS generate-ssg-${ORIGINAL}-ds.xml
         DEPENDS "${CMAKE_BINARY_DIR}/ssg-${ORIGINAL}-ds.xml"
-        DEPENDS "${CMAKE_BINARY_DIR}/ssg-${ORIGINAL}-ds-1.2.xml"
         DEPENDS "${SSG_BUILD_SCRIPTS}/enable_derivatives.py"
-        COMMENT "[${DERIVATIVE}-content] generating ssg-${DERIVATIVE}-ds.xml and ssg-${DERIVATIVE}-ds-1.2.xml"
+        COMMENT "[${DERIVATIVE}-content] generating ssg-${DERIVATIVE}-ds.xml"
     )
-    add_custom_target(
-        generate-ssg-${DERIVATIVE}-ds.xml
-        DEPENDS "${CMAKE_BINARY_DIR}/ssg-${DERIVATIVE}-ds.xml"
-        DEPENDS "${CMAKE_BINARY_DIR}/ssg-${DERIVATIVE}-ds-1.2.xml"
-    )
+    if (SSG_BUILD_SCAP_12_DS)
+        add_custom_command(
+            OUTPUT "${CMAKE_BINARY_DIR}/ssg-${DERIVATIVE}-ds-1.2.xml"
+            COMMAND env "PYTHONPATH=$ENV{PYTHONPATH}" "${PYTHON_EXECUTABLE}" "${SSG_BUILD_SCRIPTS}/enable_derivatives.py" --enable-${SHORTNAME} -i "${CMAKE_BINARY_DIR}/ssg-${ORIGINAL}-ds-1.2.xml" -o "${CMAKE_BINARY_DIR}/ssg-${DERIVATIVE}-ds-1.2.xml" "${CMAKE_CURRENT_SOURCE_DIR}/product.yml" ${DERIVATIVE} --id-name ssg
+            COMMAND "${XMLLINT_EXECUTABLE}" --nsclean --format --output "${CMAKE_BINARY_DIR}/ssg-${DERIVATIVE}-ds-1.2.xml" "${CMAKE_BINARY_DIR}/ssg-${DERIVATIVE}-ds-1.2.xml"
+            DEPENDS "${CMAKE_BINARY_DIR}/ssg-${ORIGINAL}-ds-1.2.xml"
+            DEPENDS "${SSG_BUILD_SCRIPTS}/enable_derivatives.py"
+            COMMENT "[${DERIVATIVE}-content] generating ssg-${DERIVATIVE}-ds-1.2.xml"
+        )
+        add_custom_target(
+            generate-ssg-${DERIVATIVE}-ds.xml
+            DEPENDS "${CMAKE_BINARY_DIR}/ssg-${DERIVATIVE}-ds.xml"
+            DEPENDS "${CMAKE_BINARY_DIR}/ssg-${DERIVATIVE}-ds-1.2.xml"
+        )
+    else()
+        add_custom_target(
+            generate-ssg-${DERIVATIVE}-ds.xml
+            DEPENDS "${CMAKE_BINARY_DIR}/ssg-${DERIVATIVE}-ds.xml"
+        )
+    endif()
+
     define_validate_product("${PRODUCT}")
     if ("${VALIDATE_PRODUCT}" OR "${FORCE_VALIDATE_EVERYTHING}")
         add_test(
@@ -948,10 +1013,12 @@ macro(ssg_build_derivative_product ORIGINAL SHORTNAME DERIVATIVE)
             NAME "validate-ssg-${DERIVATIVE}-ds.xml"
             COMMAND "${OPENSCAP_OSCAP_EXECUTABLE}" ds sds-validate "${CMAKE_BINARY_DIR}/ssg-${DERIVATIVE}-ds.xml"
         )
-        add_test(
-            NAME "validate-ssg-${DERIVATIVE}-ds-1.2.xml"
-            COMMAND "${OPENSCAP_OSCAP_EXECUTABLE}" ds sds-validate "${CMAKE_BINARY_DIR}/ssg-${DERIVATIVE}-ds-1.2.xml"
-        )
+        if (SSG_BUILD_SCAP_12_DS)
+            add_test(
+                NAME "validate-ssg-${DERIVATIVE}-ds-1.2.xml"
+                COMMAND "${OPENSCAP_OSCAP_EXECUTABLE}" ds sds-validate "${CMAKE_BINARY_DIR}/ssg-${DERIVATIVE}-ds-1.2.xml"
+            )
+        endif()
     endif()
 
     add_custom_target(${DERIVATIVE} ALL)
@@ -968,7 +1035,7 @@ macro(ssg_build_derivative_product ORIGINAL SHORTNAME DERIVATIVE)
 
     ssg_build_html_guides(${DERIVATIVE})
 
-    if ("${PRODUCT_BASH_REMEDIATION_ENABLED}")
+    if ("${PRODUCT_BASH_REMEDIATION_ENABLED}" AND SSG_BASH_SCRIPTS_ENABLED)
         ssg_build_profile_bash_scripts(${DERIVATIVE})
         add_custom_target(
             ${DERIVATIVE}-profile-bash-scripts
@@ -977,7 +1044,7 @@ macro(ssg_build_derivative_product ORIGINAL SHORTNAME DERIVATIVE)
         add_dependencies(${DERIVATIVE} ${DERIVATIVE}-profile-bash-scripts)
     endif()
 
-    if ("${PRODUCT_ANSIBLE_REMEDIATION_ENABLED}")
+    if ("${PRODUCT_ANSIBLE_REMEDIATION_ENABLED}" AND SSG_ANSIBLE_PLAYBOOKS_ENABLED)
         ssg_build_profile_playbooks(${DERIVATIVE})
         add_custom_target(
             ${DERIVATIVE}-profile-playbooks
@@ -1000,8 +1067,10 @@ macro(ssg_build_derivative_product ORIGINAL SHORTNAME DERIVATIVE)
     install(FILES "${CMAKE_BINARY_DIR}/ssg-${DERIVATIVE}-ds.xml"
         DESTINATION "${SSG_CONTENT_INSTALL_DIR}")
 
-    install(FILES "${CMAKE_BINARY_DIR}/ssg-${DERIVATIVE}-ds-1.2.xml"
-        DESTINATION "${SSG_CONTENT_INSTALL_DIR}")
+    if(SSG_BUILD_SCAP_12_DS)
+        install(FILES "${CMAKE_BINARY_DIR}/ssg-${DERIVATIVE}-ds-1.2.xml"
+            DESTINATION "${SSG_CONTENT_INSTALL_DIR}")
+    endif()
 
     # This is a common cmake trick, we need the globbing to happen at build time
     # and not configure time.
@@ -1349,10 +1418,10 @@ macro(ssg_build_vendor_zipfile ZIPNAME)
         COMMAND ${CMAKE_COMMAND} -DSOURCE="${CMAKE_BINARY_DIR}/tables/table-ocp*" -DDEST="vendor-zipfile/${ZIPNAME}/tables" -P "${CMAKE_SOURCE_DIR}/cmake/CopyFiles.cmake"
         COMMAND ${CMAKE_COMMAND} -E chdir "vendor-zipfile" ${CMAKE_COMMAND} -E tar "cvf" "${ZIPNAME}-RedHat.zip" --format=zip "${ZIPNAME}"
         COMMENT "Building Red Hat zipfile at ${CMAKE_BINARY_DIR}/vendor-zipfile/${ZIPNAME}-RedHat.zip"
-        DEPENDS rhel7
-        DEPENDS rhel8
-        DEPENDS rhosp13
-        DEPENDS rhv4
+        DEPENDS products/rhel7
+        DEPENDS products/rhel8
+        DEPENDS products/rhosp13
+        DEPENDS products/rhv4
         )
     add_custom_target(
         redhat-zipfile

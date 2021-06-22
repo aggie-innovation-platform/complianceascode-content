@@ -479,7 +479,7 @@ class ProfileWithSeparatePolicies(ResolvableProfile):
             elif ":" in cid:
                 _, level_id = cid.split(":", 1)
                 controls.extend(
-                    controls_manager.get_all_controls_of_level_at_least(policy_id, level_id))
+                    controls_manager.get_all_controls_of_level(policy_id, level_id))
             else:
                 controls.extend(controls_manager.get_all_controls(policy_id))
         return controls
@@ -514,7 +514,8 @@ class ProfileWithInlinePolicies(ResolvableProfile):
         self.controls_by_policy = defaultdict(list)
 
     def apply_selection(self, item):
-        if ":" in item:
+        # ":" is the delimiter for controls but not when the item is a variable
+        if ":" in item and "=" not in item:
             policy_id, control_id = item.split(":", 1)
             self.controls_by_policy[policy_id].append(control_id)
         else:
@@ -529,7 +530,7 @@ class ProfileWithInlinePolicies(ResolvableProfile):
             elif ":" in cid:
                 _, level_id = cid.split(":", 1)
                 controls.extend(
-                    controls_manager.get_all_controls_of_level_at_least(policy_id, level_id))
+                    controls_manager.get_all_controls_of_level(policy_id, level_id))
             else:
                 controls.extend(
                     controls_manager.get_all_controls(policy_id))

@@ -102,3 +102,9 @@ selections:
     - accounts_password_pam_minlen
     - var_password_pam_maxrepeat=1
     - accounts_password_pam_maxrepeat
+    - var_accounts_passwords_pam_faillock_deny=3
+    - accounts_passwords_pam_faillock_deny
+    - var_accounts_passwords_pam_faillock_unlock_time=900
+    - accounts_passwords_pam_faillock_unlock_time
+    - var_accounts_passwords_pam_faillock_fail_interval=900
+    - accounts_passwords_pam_faillock_interval

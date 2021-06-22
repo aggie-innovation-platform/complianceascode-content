@@ -1,6 +1,6 @@
 documentation_complete: true
 
-prodtype: fedora,ol7,ol8,rhel7,rhel8,rhel9,rhv4,sle15
+prodtype: fedora,ol7,ol8,rhel7,rhel8,rhel9,rhv4,sle15,ubuntu1804,ubuntu2004
 
 title: 'Set Lockout Time for Failed Password Attempts'
 
@@ -53,6 +53,7 @@ references:
     ism: 0421,0422,0431,0974,1173,1401,1504,1505,1546,1557,1558,1559,1560,1561
     stigid@rhel8: RHEL-08-020014
     anssi: BP28(R18)
+    tamu: AC-7
 
 ocil_clause: 'unlock_time is less than the expected value'
 

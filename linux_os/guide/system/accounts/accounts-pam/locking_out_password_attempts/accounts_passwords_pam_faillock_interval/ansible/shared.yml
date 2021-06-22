@@ -1,4 +1,4 @@
-# platform = multi_platform_rhel,multi_platform_fedora,multi_platform_ol,multi_platform_rhv
+# platform = multi_platform_rhel,multi_platform_fedora,multi_platform_ol,multi_platform_rhv,multi_platform_ubuntu
 # reboot = false
 # strategy = restrict
 # complexity = low
@@ -9,7 +9,11 @@
   pamd:
     name: "{{ item }}"
     type: auth
+{{% if product in ["ubuntu1804", "ubuntu2004"] %}}
+    control: '[success=1 default=ignore]'
+{{% else %}}
     control: sufficient
+{{% endif %}}
     module_path: pam_unix.so
     new_type: auth
     new_control: required
@@ -19,8 +23,12 @@
         fail_interval={{ var_accounts_passwords_pam_faillock_fail_interval }}'
     state: before
   loop:
+{{% if product in ["ubuntu1804", "ubuntu2004"] %}}
+    - common-auth
+{{% else %}}
     - system-auth
     - password-auth
+{{% endif %}}
 
 - name: Add fail_interval argument to auth pam_faillock preauth
   pamd:
@@ -33,14 +41,22 @@
         fail_interval={{ var_accounts_passwords_pam_faillock_fail_interval }}'
     state: args_present
   loop:
+{{% if product in ["ubuntu1804", "ubuntu2004"] %}}
+    - common-auth
+{{% else %}}
     - system-auth
     - password-auth
+{{% endif %}}
 
 - name: Add auth pam_faillock aufthfail fail_interval after pam_unix.so
   pamd:
     name: "{{ item }}"
     type: auth
+{{% if product in ["ubuntu1804", "ubuntu2004"] %}}
+    control: '[success=1 default=ignore]'
+{{% else %}}
     control: sufficient
+{{% endif %}}
     module_path: pam_unix.so
     new_type: auth
     new_control: '[default=die]'
@@ -49,8 +65,12 @@
         fail_interval={{ var_accounts_passwords_pam_faillock_fail_interval }}'
     state: after
   loop:
+{{% if product in ["ubuntu1804", "ubuntu2004"] %}}
+    - common-auth
+{{% else %}}
     - system-auth
     - password-auth
+{{% endif %}}
 
 - name: Add fail_interval argument to auth pam_faillock authfail
   pamd:
@@ -62,10 +82,40 @@
         fail_interval={{ var_accounts_passwords_pam_faillock_fail_interval }}'
     state: args_present
   loop:
+{{% if product in ["ubuntu1804", "ubuntu2004"] %}}
+    - common-auth
+{{% else %}}
     - system-auth
     - password-auth
+{{% endif %}}
 
-- name: Add account pam_faillock before pam_unix.so
+{{% if product in ["ubuntu1804", "ubuntu2004"] %}}
+- name: Add account pam_faillock before pam_deny.so
+  pamd:
+    name: "{{ item }}"
+    type: auth
+    control: requisite
+    module_path: pam_deny.so
+    new_type: auth
+    new_control: sufficient
+    new_module_path: pam_faillock.so
+    state: before
+  loop:
+    - common-auth
+
+- name: Add fail_interval argument to auth pam_faillock authfail
+  pamd:
+    name: "{{ item }}"
+    type: auth
+    new_type: auth
+    control: 'sufficient'
+    module_path: pam_faillock.so
+    module_arguments: 'authsucc
+        fail_interval={{ var_accounts_passwords_pam_faillock_fail_interval }}'
+    state: args_present
+  loop:
+    - common-auth
+{{% else %}}
   pamd:
     name: "{{ item }}"
     type: account
@@ -78,3 +128,4 @@
   loop:
     - system-auth
     - password-auth
+{{% endif %}}

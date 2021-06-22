@@ -1,0 +1,45 @@
+documentation_complete: true
+
+prodtype: fedora,ol7,ol8,rhel7,rhel8,rhel9,rhv4,wrlinux1019,ubuntu1804,ubuntu2004
+
+title: 'Set Password Checks to Limit Use of GECOS Information'
+
+description: |-
+    The pam_pwquality module's <tt>gecoscheck</tt> parameter controls requirements for
+    not including identifiable information about the account. When set to a positive
+    number, it will reject passwords which contain more than 3 characters from the passwd(5)
+    GECOS field of the user. Modify the <tt>gecoscheck</tt> setting in <tt>/etc/security/pwquality.conf</tt>
+    to be non-zero to prevent a run of 3 or more characters from the GECOS entry. The
+    default is 0, which means that this check is disabled.
+
+rationale: |-
+    Use of a complex password helps to increase the time and resources required to compromise the password.
+    Password complexity, or strength, is a measure of the effectiveness of a password in resisting attempts at
+    guessing and brute-force attacks.
+    <br /><br />
+    Password complexity is one factor of several that determines how long it takes to crack a password. The more
+    complex the password, the greater the number of possible combinations that need to be tested before the
+    password is compromised.
+    <br /><br />
+    Passwords with personally identifiable information in them may be more vulnerable to password-guessing attacks.
+
+severity: medium
+
+references:
+    tamu: IA-5(9.3.3)
+
+ocil_clause: 'gecoscheck is not found or not greater than or equal to the required value'
+
+ocil: |-
+    To check if the gecos check is enabled, run the following command:
+    <pre>$ grep gecoscheck /etc/security/pwquality.conf</pre>
+    Look for the value of the <tt>gecoscheck</tt> parameter. If gecoscheck is greater
+    than 0, it is enabled. Which could appear as <tt>gecoscheck=1</tt>.
+
+platform: pam
+
+template:
+    name: accounts_password
+    vars:
+        variable: gecoscheck
+        operation: less than or equal

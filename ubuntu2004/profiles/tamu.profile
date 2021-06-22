@@ -96,12 +96,17 @@ selections:
 #    - package_ntp_installed
 #    - service_ntp_enabled
     - service_apport_disabled
+    - package_libpam-pwquality_installed
     - var_password_pam_remember=5
     - accounts_password_pam_pwhistory_remember
     - var_password_pam_minlen=20
     - accounts_password_pam_minlen
     - var_password_pam_maxrepeat=1
     - accounts_password_pam_maxrepeat
+    - var_password_pam_gecoscheck=1
+    - accounts_password_pam_gecoscheck
+    - var_password_pam_maxsequence=3
+    - accounts_password_pam_maxsequence
     - var_accounts_passwords_pam_faillock_deny=3
     - accounts_passwords_pam_faillock_deny
     - var_accounts_passwords_pam_faillock_unlock_time=900

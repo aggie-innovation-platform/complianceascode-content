@@ -6,6 +6,7 @@ description: |-
     This baseline draft aligns to the TAMU Controls Catalog for Ubuntu 20.04 LTS Benchmark.
 
 selections:
+    # The partition* rules are included for variants, they will be skipped in the default builds
     - partition_for_tmp
     - partition_for_var
     - partition_for_var_log
@@ -56,6 +57,7 @@ selections:
     - file_permissions_backup_etc_group
     - file_permissions_sshd_private_key
     - file_permissions_sshd_pub_key
+    # The mount_option* rules are (mostly) included for variants, most will be skipped in the default builds
     - mount_option_dev_shm_nodev
     - mount_option_dev_shm_noexec
     - mount_option_dev_shm_nosuid
@@ -93,8 +95,6 @@ selections:
     - sysctl_fs_protected_symlinks
     - sysctl_fs_suid_dumpable
     - sysctl_kernel_randomize_va_space
-#    - package_ntp_installed
-#    - service_ntp_enabled
     - service_apport_disabled
     - package_libpam-pwquality_installed
     - var_password_pam_remember=5

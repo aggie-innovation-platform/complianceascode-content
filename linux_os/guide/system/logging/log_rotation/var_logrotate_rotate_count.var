@@ -1,0 +1,21 @@
+documentation_complete: true
+
+title: logrotate_rotate_count
+
+description: 'Log files are rotated COUNT times before being removed or mailed to the address specified in a mail directive. If count is 0, old versions are removed rather than rotated.'
+
+type: number
+
+operator: equals
+
+interactive: false
+
+options:
+    "0": "0"
+    7: 7
+    14: 14
+    30: 30
+    45: 45
+    60: 60
+    90: 90
+    default: 30

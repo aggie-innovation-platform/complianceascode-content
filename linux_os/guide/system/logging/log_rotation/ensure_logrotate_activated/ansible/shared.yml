@@ -3,6 +3,7 @@
 # strategy = configure
 # complexity = low
 # disruption = low
+{{{ ansible_instantiate_variables("var_logrotate_rotate_count") }}}
 
 - name: Configure daily log rotation in /etc/logrotate.conf
   lineinfile:
@@ -17,6 +18,13 @@
     dest: "/etc/logrotate.conf"
     regexp: '^[\s]*(weekly|monthly|yearly)$'
     state: absent
+
+- name: Set rotate count for log rotation schedule
+  lineinfile:
+    create: yes
+    dest: "/etc/logrotate.conf"
+    regex: "^rotate.*$"
+    line: "rotate {{ var_logrotate_rotate_count }}"
 
 - name: Configure cron.daily if not already
   block:

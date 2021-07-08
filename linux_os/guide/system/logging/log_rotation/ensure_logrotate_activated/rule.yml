@@ -4,11 +4,12 @@ title: 'Ensure Logrotate Runs Periodically'
 
 description: |-
     The <tt>logrotate</tt> utility allows for the automatic rotation of
-    log files.  The frequency of rotation is specified in <tt>/etc/logrotate.conf</tt>,
-    which triggers a cron task.  To configure logrotate to run daily, add or correct
-    the following line in <tt>/etc/logrotate.conf</tt>:
+    log files.  The frequency of rotation is specified in <tt>/etc/logrotate.conf</tt>
+    which triggers a cron task.  The value for the <tt>rotate</tt> paramater is {{{ xccdf_value("var_logrotate_rotate_count") }}}.
+    To configure logrotate to run daily, add or correct the following line in <tt>/etc/logrotate.conf</tt>:
     <pre># rotate log files <i>frequency</i>
-    daily</pre>
+    daily
+    rotate {{{ xccdf_value("var_logrotate_rotate_count") }}}</pre>
 
 rationale: |-
     Log files that are not properly rotated run the risk of growing so large
@@ -36,6 +37,7 @@ references:
     cis@rhel8: "4.3"
     cis@ubuntu2004: "4.3"
     anssi: BP28(R43),NT12(R18)
+    tamu: AU-11(1.2)
 
 ocil_clause: 'logrotate is not configured to run daily'
 

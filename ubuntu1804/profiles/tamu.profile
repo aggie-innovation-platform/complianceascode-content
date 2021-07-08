@@ -28,6 +28,7 @@ selections:
     - sshd_idle_timeout_value=15_minutes
     - sshd_set_idle_timeout
     - sshd_set_keepalive
+    - var_logrotate_rotate_count=30
     - ensure_logrotate_activated
     - disable_host_auth
     - file_permissions_systemmap

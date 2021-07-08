@@ -26,7 +26,7 @@ rationale: |-
 severity: medium
 
 references:
-    tamu: IA-5(9.3.3)
+    tamu: TAMU-IA-5(9.3.3)
 
 ocil_clause: 'gecoscheck is not found or not greater than or equal to the required value'
 

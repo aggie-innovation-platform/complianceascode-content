@@ -37,7 +37,7 @@ references:
     cis@rhel8: "4.3"
     cis@ubuntu2004: "4.3"
     anssi: BP28(R43),NT12(R18)
-    tamu: AU-11(1.2)
+    tamu: TAMU-AU-11(1.2)
 
 ocil_clause: 'logrotate is not configured to run daily'
 

@@ -19,7 +19,7 @@ rationale: |-
 severity: medium
 
 references:
-    tamu: IA-5(9.3)
+    tamu: TAMU-IA-5(9.3)
 
 ocil_clause: 'the package is not installed'
 

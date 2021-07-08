@@ -30,7 +30,7 @@
 <xsl:variable name="isa-62443-2009uri">https://www.isa.org/templates/one-column.aspx?pageid=111294&amp;productId=116731</xsl:variable>
 <xsl:variable name="cobit5uri">https://www.isaca.org/resources/cobit</xsl:variable>
 <xsl:variable name="cis-cscuri">https://www.cisecurity.org/controls/</xsl:variable>
-<xsl:variable name="tamuuri">https://it.tamu.edu/cc/</xsl:variable>
+<xsl:variable name="tamuuri">https://u.tamu.edu/controls-catalog</xsl:variable>
 <xsl:variable name="osppuri">https://www.niap-ccevs.org/Profile/PP.cfm</xsl:variable>
 <xsl:variable name="pcidssuri">https://www.pcisecuritystandards.org/documents/PCI_DSS_v3-1.pdf</xsl:variable>
 <xsl:variable name="ssg-benchmark-latest-uri">https://github.com/OpenSCAP/scap-security-guide/releases/latest</xsl:variable>

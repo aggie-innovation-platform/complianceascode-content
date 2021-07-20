@@ -112,3 +112,8 @@ selections:
     - accounts_passwords_pam_faillock_unlock_time
     - var_accounts_passwords_pam_faillock_fail_interval=900
     - accounts_passwords_pam_faillock_interval
+    - var_password_hashing_algorithm=SHA512
+    - set_password_hashing_algorithm_logindefs
+    - set_password_hashing_min_rounds_logindefs
+    - set_password_hashing_algorithm_systemauth
+    - set_password_hashing_algorithm_commonauth

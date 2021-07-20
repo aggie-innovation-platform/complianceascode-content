@@ -1,6 +1,6 @@
 documentation_complete: true
 
-prodtype: sle12,sle15
+prodtype: sle12,sle15,ubuntu1804,ubuntu2004
 
 title: 'Set Password Hashing Rounds in /etc/login.defs'
 
@@ -34,6 +34,7 @@ references:
     disa: CCI-000803
     nist@sle12: IA-5(1)(c),IA-5(1).1(v),IA-7,IA-7.1
     srg: SRG-OS-000073-GPOS-00041,SRG-OS-000120-GPOS-00061
+    tamu: TAMU-IA-5(3.1),TAMU-IA-5(3.4)
 
 ocil_clause: 'it does not'
 

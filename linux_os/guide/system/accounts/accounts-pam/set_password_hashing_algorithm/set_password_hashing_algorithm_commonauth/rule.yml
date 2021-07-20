@@ -1,6 +1,6 @@
 documentation_complete: true
 
-prodtype: sle15
+prodtype: sle15,ubuntu1804,ubuntu2004
 
 title: "Set PAM's Common Authentication Hashing Algorithm"
 
@@ -41,6 +41,7 @@ references:
     srg: SRG-OS-000120-GPOS-00061
     vmmsrg: SRG-OS-000480-VMM-002000
     stigid@sle15: SLES-15-010250
+    tamu: TAMU-IA-5(3.1),TAMU-IA-5(3.4)
 
 ocil_clause: 'it does not'
 
@@ -57,7 +58,11 @@ template:
     vars:
       path: /etc/pam.d/common-auth
       type: auth
+      {{% if product in ["ubuntu1804", "ubuntu2004"] %}}
+      control_flag: '[success=1 default=ignore]'
+      {{% else %}}
       control_flag: required
+      {{% endif %}}
       module: pam_unix.so
       arguments:
         - argument: sha512

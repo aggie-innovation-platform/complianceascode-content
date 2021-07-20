@@ -6,12 +6,6 @@ description: |-
     This baseline draft aligns to the TAMU Controls Catalog for Ubuntu 20.04 LTS Benchmark.
 
 selections:
-    # The partition* rules are included for variants, they will be skipped in the default builds
-    - partition_for_tmp
-    - partition_for_var
-    - partition_for_var_log
-    - partition_for_var_log_audit
-    - partition_for_home
     - sshd_allow_only_protocol2
     - sshd_disable_empty_passwords
     - sshd_disable_gssapi_auth
@@ -23,11 +17,15 @@ selections:
     - sshd_do_not_permit_user_env
     - sshd_enable_strictmodes
     - sshd_enable_warning_banner
+    - login_banner_text=tamu_default
+    - banner_etc_issue
     - sshd_set_loglevel_info
     - sshd_use_priv_separation
     - sshd_idle_timeout_value=15_minutes
     - sshd_set_idle_timeout
     - sshd_set_keepalive
+    - package_sudo_installed
+    - sudo_add_env_reset
     - var_logrotate_rotate_count=30
     - ensure_logrotate_activated
     - disable_host_auth

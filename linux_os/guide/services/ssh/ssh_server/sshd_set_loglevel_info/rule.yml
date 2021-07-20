@@ -28,6 +28,7 @@ references:
     cis@rhel8: 5.2.5
     cis@sle15: 5.2.5
     nist: AC-17(a),CM-6(a)
+    tamu: TAMU-AU-2(1),TAMU-AU-3(1.6),TAMU-CM-1(2),TAMU-CM-7
 
 ocil_clause: 'it is commented out or is not enabled'
 

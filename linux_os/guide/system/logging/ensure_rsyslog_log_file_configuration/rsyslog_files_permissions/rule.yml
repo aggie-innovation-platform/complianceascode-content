@@ -34,6 +34,7 @@ references:
     nist: CM-6(a),AC-6(1)
     pcidss: Req-10.5.1,Req-10.5.2
     ism: 0988,1405
+    tamu: TAMU-AU-2(1),TAMU-AU-9
 
 ocil_clause: 'the permissions are not correct'
 

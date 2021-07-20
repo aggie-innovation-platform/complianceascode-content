@@ -47,7 +47,7 @@ references:
     ism: 0421,0422,0431,0974,1173,1401,1504,1505,1546,1557,1558,1559,1560,1561
     stigid@rhel8: RHEL-08-020230
     anssi: BP28(R18)
-    tamu: TAMU-IA-5(9.2),TAMU-IA-5(9.3.1)
+    tamu: TAMU-IA-5(5.2),TAMU-IA-5(9.1),TAMU-IA-5(9.2),TAMU-IA-5(9.3.1)
 
 ocil_clause: 'minlen is not found, or not equal to or greater than the required value'
 

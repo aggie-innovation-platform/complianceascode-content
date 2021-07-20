@@ -27,6 +27,7 @@ references:
     srg: SRG-OS-000077-GPOS-00045
     stigid@sle12: SLES-12-010310
     nist@sle12: IA-5(1)(e),IA-5 (1).1(v)
+    tamu: TAMU-IA-5
 
 ocil_clause: |-
      the value of remember is not set equal to or greater than {{{ xccdf_value("var_password_pam_remember") }}}

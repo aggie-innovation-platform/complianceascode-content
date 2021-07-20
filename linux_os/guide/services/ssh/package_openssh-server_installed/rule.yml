@@ -30,6 +30,7 @@ references:
     cis-csc: 13,14
     ospp: FIA_UAU.5,FTP_ITC_EXT.1
     stigid@rhel8: RHEL-08-040160
+    tamu: TAMU-IA-5(3),TAMU-IA-5(3.2),TAMU-SC-8(2),TAMU-SC-8(3)
 
 ocil_clause: 'the package is not installed'
 

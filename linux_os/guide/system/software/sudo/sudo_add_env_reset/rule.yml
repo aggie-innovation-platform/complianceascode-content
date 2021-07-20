@@ -1,6 +1,6 @@
 documentation_complete: true
 
-prodtype: ol7,ol8,rhel7,rhel8
+prodtype: ol7,ol8,rhel7,rhel8,ubuntu1804,ubuntu2004
 
 title: 'Ensure sudo Runs In A Minimal Environment - sudo env_reset'
 
@@ -26,6 +26,7 @@ identifiers:
 
 references:
     anssi: BP28(R58)
+    tamu: TAMU-AC-6(1)
 
 ocil_clause: 'env_reset is not enabled in sudo'
 

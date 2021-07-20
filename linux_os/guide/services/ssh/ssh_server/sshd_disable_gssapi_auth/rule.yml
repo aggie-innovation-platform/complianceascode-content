@@ -37,6 +37,7 @@ references:
     cis-csc: 11,3,9
     ism: 0418,1055,1402
     stigid@rhel8: RHEL-08-010521
+    tamu: TAMU-CM-1(2),TAMU-CM-7
 
 ocil_clause: 'it is commented out or is not disabled'
 

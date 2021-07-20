@@ -41,6 +41,7 @@ references:
     nist: CM-6(b)
     nist@sle15: CM-6.1(iv)
     stigid@rhel8: RHEL-08-040340
+    tamu: TAMU-CM-1(2),TAMU-CM-7
 
 template:
     name: sshd_lineinfile

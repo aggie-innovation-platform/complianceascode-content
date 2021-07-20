@@ -8,6 +8,9 @@ rationale: 'ntpdate is an old not security-compliant ntp client. It should be re
 
 severity: low
 
+references:
+    tamu: TAMU-CM-1(2),TAMU-CM-7,TAMU-AU-3(1.1),TAMU-AU-8
+
 template:
     name: package_removed
     vars:

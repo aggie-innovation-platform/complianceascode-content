@@ -17,6 +17,9 @@ rationale: |-
 
 severity: unknown
 
+references:
+    tamu: TAMU-CM-1(2),TAMU-CM-7
+
 template:
     name: service_disabled
     vars:

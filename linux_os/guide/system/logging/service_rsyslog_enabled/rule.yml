@@ -32,6 +32,7 @@ references:
     cis@ubuntu2004: 4.2.1.2
     stigid@rhel8: RHEL-08-010561
     srg: SRG-OS-000480-GPOS-00227
+    tamu: TAMU-AU-2(1),TAMU-AU-3
 
 ocil: |-
     {{{ ocil_service_enabled(service="rsyslog") }}}

@@ -30,7 +30,7 @@ rationale: |-
 severity: medium
 
 references:
-    tamu: TAMU-IA-5(9.3.5)
+    tamu: TAMU-IA-5(5.2),TAMU-IA-5(9.3.5)
 
 ocil_clause: 'maxsequence is not found or not greater than or equal to the required value'
 

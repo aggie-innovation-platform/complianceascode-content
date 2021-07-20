@@ -49,6 +49,7 @@ references:
     cis-csc: 1,11,12,13,14,15,16,18,3,5
     anssi: BP28(R19),NT007(R21)
     stigid@rhel8: RHEL-08-010550
+    tamu: TAMU-AC-6(1),TAMU-CM-1(2),TAMU-CM-1(4),TAMU-CM-7
 
 {{{ complete_ocil_entry_sshd_option(default="no", option="PermitRootLogin", value="no") }}}
 

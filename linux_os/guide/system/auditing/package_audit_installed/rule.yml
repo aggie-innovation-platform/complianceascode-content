@@ -28,6 +28,7 @@ references:
     disa: CCI-000172,CCI-001814,CCI-001875,CCI-001877,CCI-001878,CCI-001879,CCI-001880,CCI-001881,CCI-001882,CCI-001889,CCI-001914,CCI-000169
     nist@sle12: AU-7(a),AU-7(b),AU-8(b),AU-12.1(iv),AU-12(3),AU-12(c),CM-5(1)
     stigid@rhel8: RHEL-08-030180
+    tamu: TAMU-AU-2(1),TAMU-AU-3(1.6)
 
 template:
     name: package_installed

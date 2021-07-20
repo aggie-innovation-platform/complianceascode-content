@@ -31,6 +31,7 @@ references:
     cis-csc: 1,14,15,16,3,5,6
     srg: SRG-OS-000479-GPOS-00224,SRG-OS-000051-GPOS-00024,SRG-OS-000480-GPOS-00227
     stigid@rhel8: RHEL-08-030670
+    tamu: TAMU-AU-2(1),TAMU-AU-3
 
 ocil_clause: 'the package is not installed'
 

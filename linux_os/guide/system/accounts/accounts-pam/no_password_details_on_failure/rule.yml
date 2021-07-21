@@ -1,0 +1,21 @@
+documentation_complete: true
+
+prodtype: ubuntu1804,ubuntu2004
+
+title: 'Password Failure Message'
+
+description: |-
+    {{{ full_name }}} natively does not disclose to the login screen the reasons
+    for a login failure.  The failed login output says "Permission denied" only;
+    no indication as to whether the username or password was wrong.
+
+rationale: |-
+    Disclosing that an account exists can be just as useful as an attack vector as
+    determining if the password entered was correct.
+
+severity: low
+
+references:
+    tamu: TAMU-IA-6(1.2)
+
+platform: pam

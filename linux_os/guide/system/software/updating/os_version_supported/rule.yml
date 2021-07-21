@@ -1,0 +1,23 @@
+documentation_complete: true
+
+prodtype: ubuntu1804,ubuntu2004
+
+title: 'Operating System Version Supported'
+
+description: |-
+    By using LTS versions of {{{ full_name }}} the base OS is supported by the
+    OS Vendor for a longer period of time.
+
+rationale: |-
+    Detailed information on OS release cycles, refer to the OS vendor.
+    {{% if product in ["ubuntu1804", "ubuntu2004"] %}}
+        {{{ weblink(link="https://ubuntu.com/about/release-cycle") }}}
+    {{% endif %}}
+
+severity: low
+
+references:
+    nist: SI-3(b)
+    tamu: TAMU-SI-3(1.1)
+
+platform: machine

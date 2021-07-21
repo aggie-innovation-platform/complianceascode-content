@@ -117,3 +117,8 @@ selections:
     - set_password_hashing_min_rounds_logindefs
     - set_password_hashing_algorithm_systemauth
     - set_password_hashing_algorithm_commonauth
+    # These are documentation only, no remediation code
+    - least_privilege
+    - os_version_supported
+    - no_password_details_on_failure
+    - no_password_display_on_entry

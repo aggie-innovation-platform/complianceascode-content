@@ -6,16 +6,6 @@ env:
   platforms: 'ubuntu1804 ubuntu2004 rhel7'
 
 jobs:
-  debug:
-    name: Debug info
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: hmarr/debug-action@v2
-      - name: Print shit
-        run: |
-          echo "ref_type: ${{ github.ref_type }}"
-          echo "ref: ${{ github.ref }}"
-
   build:
     if: ${{ startsWith(github.ref, 'refs/tags/v') }}
     name: Build Content

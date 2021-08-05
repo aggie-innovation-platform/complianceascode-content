@@ -57,6 +57,9 @@ yaml.add_constructor(_mapping_tag, dict_constructor)
 PRODUCT_WHITELIST = set([
     "rhel7",
     "rhel8",
+    "centos7",
+    "ubuntu1804",
+    "ubuntu2004",
 ])
 
 PROFILE_WHITELIST = set([
@@ -79,6 +82,7 @@ PROFILE_WHITELIST = set([
     "stig",
     "rhvh-stig",
     "rhvh-vpp",
+    "tamu",
 ])
 
 

@@ -1,6 +1,6 @@
 documentation_complete: true
 
-prodtype: sle12,sle15,ubuntu1804,ubuntu2004
+prodtype: rhel7,sle12,sle15,ubuntu1804,ubuntu2004
 
 title: 'Set Password Hashing Rounds in /etc/login.defs'
 

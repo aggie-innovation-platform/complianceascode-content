@@ -1,6 +1,6 @@
 documentation_complete: true
 
-prodtype: ubuntu1804,ubuntu2004
+prodtype: rhel7,ubuntu1804,ubuntu2004
 
 title: 'Password Display on Entry'
 

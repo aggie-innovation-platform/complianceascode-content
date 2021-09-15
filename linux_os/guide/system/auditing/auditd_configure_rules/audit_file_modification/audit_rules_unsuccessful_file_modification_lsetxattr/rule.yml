@@ -28,9 +28,9 @@ rationale: |-
 severity: medium
 
 identifiers:
+    cce@rhcos4: CCE-82632-1
     cce@rhel7: CCE-81094-5
     cce@rhel8: CCE-80981-4
-    cce@rhcos4: CCE-82632-1
 
 references:
     disa: CCI-000172
@@ -51,3 +51,10 @@ template:
     name: audit_rules_unsuccessful_file_modification
     vars:
         name: lsetxattr
+        syscall_grouping:
+          - chmod
+          - fchmod
+          - fchmodat
+          - fsetxattr
+          - lsetxattr
+          - setxattr

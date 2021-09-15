@@ -1,6 +1,6 @@
 documentation_complete: true
 
-prodtype: sle12,sle15
+prodtype: sle12,sle15,ubuntu2004
 
 title: 'Enforce Delay After Failed Logon Attempts'
 
@@ -22,17 +22,18 @@ identifiers:
     cce@sle15: CCE-85619-5
 
 references:
-    stigid@sle12: SLES-12-010370
-    stigid@sle15: SLES-15-040000
     disa: CCI-000366
     nist@sle12: CM-6(b),CM-6.1(iv)
     srg: SRG-OS-000480-GPOS-00226
+    stigid@sle12: SLES-12-010370
+    stigid@sle15: SLES-15-040000
+    stigid@ubuntu2004: UBTU-20-010075
 
 ocil_clause: 'that is not the case'
 
 ocil: |-
-    Verify the SUSE operating system enforces a minimum delay betweeen logon
-    prompts following a failed logon attempt.
+    Verify that the {{{ full_name }}} operating system enforces a minimum delay betweeen
+    logon prompts following a failed logon attempt.
 
     <pre># grep pam_faildelay /etc/pam.d/common-auth
     auth required pam_faildelay.so delay={{{ xccdf_value("var_password_pam_delay") }}}</pre>

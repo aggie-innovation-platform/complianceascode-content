@@ -16,10 +16,14 @@ severity: medium
 identifiers:
     cce@rhel7: CCE-82882-2
     cce@rhel8: CCE-82883-0
+    cce@rhel9: CCE-83503-3
 
 ocil_clause: 'the package is not installed'
 
 ocil: '{{{ ocil_package(package="rear") }}}'
+
+# The package is not available for s309x on RHEL<8.5
+# platform: not_s390x_arch
 
 template:
     name: package_installed

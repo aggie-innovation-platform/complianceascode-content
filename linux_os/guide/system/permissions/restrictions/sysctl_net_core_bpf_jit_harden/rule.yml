@@ -14,12 +14,16 @@ rationale: |-
 severity: medium
 
 identifiers:
-    cce@rhel8: CCE-82934-1
     cce@rhcos4: CCE-82505-9
+    cce@rhel8: CCE-82934-1
+    cce@rhel9: CCE-83966-2
 
 references:
+    disa: CCI-000366
+    nist: CM-6b
     ospp: FMT_SMF_EXT.1
     srg: SRG-OS-000480-GPOS-00227
+    stigid@rhel8: RHEL-08-040286
 
 {{{ complete_ocil_entry_sysctl_option_value(sysctl="net.core.bpf_jit_harden", value="2") }}}
 

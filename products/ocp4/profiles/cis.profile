@@ -12,7 +12,7 @@ metadata:
 
 description: |-
     This profile defines a baseline that aligns to the Center for Internet Security®
-    Red Hat OpenShift Container Platform 4 Benchmark™, V0.3, currently unreleased.
+    Red Hat OpenShift Container Platform 4 Benchmark™, V1.1.
 
     This profile includes Center for Internet Security®
     Red Hat OpenShift Container Platform 4 CIS Benchmarks™ content.
@@ -212,7 +212,7 @@ selections:
   #### 5.3 Network Policies and CNI
   # 5.3.1 Ensure that the CNI in use supports Network Policies (info)
     - configure_network_policies
-  # 5.3.2 Ensure that all Namespaces have Network Policies defined (info)
+  # 5.3.2 Ensure that all Namespaces have Network Policies defined
     - configure_network_policies_namespaces
   #### 5.4 Secrets Management
   # 5.4.1 Prefer using secrets as files over secrets as environment variables (info)

@@ -157,8 +157,13 @@ selections:
     - dconf_gnome_login_banner_text
     - dconf_gnome_screensaver_lock_enabled
     - dconf_gnome_screensaver_mode_blank
+    - dir_group_ownership_library_dirs
+    - dir_ownership_library_dirs
+    - dir_permissions_library_dirs
     - dir_perms_world_writable_sticky_bits
     - dir_perms_world_writable_system_owned_group
+    - dir_system_commands_group_root_owned
+    - dir_system_commands_root_owned
     - disable_ctrlaltdel_reboot
     - display_login_attempts
     - enable_dconf_user_profile
@@ -167,14 +172,20 @@ selections:
     - ensure_rtc_utc_configuration
     - file_etc_security_opasswd
     - file_groupownership_home_directories
+    - file_groupownership_system_commands_dirs
+    - file_ownership_binary_dirs
+    - file_ownership_library_dirs
+    - file_permissions_binary_dirs
     - file_permissions_home_directories
     - file_permissions_sshd_private_key
     - file_permissions_sshd_pub_key
     - file_permissions_ungroupowned
+    - file_permissions_library_dirs
     - file_permissions_local_var_log_messages
+    - file_permissions_system_commands_dirs
     - file_permission_user_init_files
     - ftp_present_banner
-    - gnome_gdm_disable_automatic_login
+    - gnome_gdm_disable_unattended_automatic_login
     - dconf_gnome_screensaver_idle_delay
     - grub2_password
     - grub2_uefi_password
@@ -192,14 +203,15 @@ selections:
     - no_empty_passwords
     - no_files_unowned_by_user
     - no_host_based_files
+    - no_shelllogin_for_systemaccounts
     - no_user_host_based_files
     - package_aide_installed
     - package_audit-audispd-plugins_installed
     - package_audit_installed
-    - package_MFEhiplsm_installed
     - package_pam_apparmor_installed
     - package_SuSEfirewall2_installed
     - package_telnet-server_removed
+    - package_vsftpd_removed
     - pam_disable_automatic_configuration
     - partition_for_home
     - partition_for_var
@@ -208,6 +220,7 @@ selections:
     - permissions_local_var_log_audit
     - policy_temp_passwords_immediate_change
     - postfix_client_configure_mail_alias
+    - root_permissions_syslibrary_files
     - rsyslog_remote_loghost
     - run_chkstat
     - security_patches_up_to_date
@@ -239,9 +252,13 @@ selections:
     - sshd_use_approved_ciphers
     - sshd_use_approved_macs
     - sshd_use_priv_separation
+    - sshd_x11_use_localhost
     - sssd_offline_cred_expiration
     - sudo_remove_no_authenticate
     - sudo_remove_nopasswd
+    - sudo_require_reauthentication
+    - sudo_restrict_privilege_elevation_to_authorized
+    - sudoers_validate_passwd
     - susefirewall2_ddos_protection
     - susefirewall2_only_required_services
     - sysctl_kernel_kptr_restrict
@@ -255,7 +272,11 @@ selections:
     - sysctl_net_ipv4_icmp_echo_ignore_broadcasts
     - sysctl_net_ipv4_ip_forward
     - sysctl_net_ipv4_tcp_syncookies
+    - sysctl_net_ipv6_conf_all_accept_redirects
     - sysctl_net_ipv6_conf_all_accept_source_route
+    - sysctl_net_ipv6_conf_default_accept_source_route
+    - sysctl_net_ipv6_conf_default_forwarding
     - sysctl_net_ipv6_conf_default_accept_redirects
+    - sysctl_net_ipv6_conf_all_forwarding
     - vlock_installed
     - wireless_disable_interfaces

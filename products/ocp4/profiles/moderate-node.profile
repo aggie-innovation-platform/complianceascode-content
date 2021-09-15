@@ -36,11 +36,24 @@ description: |-
     consensus and release processes.
 selections:
 
+    # AU-4
+    - partition_for_var_log_kube_apiserver
+    - partition_for_var_log_openshift_apiserver
+    - partition_for_var_log_oauth_apiserver
+
     # AU-9
     - directory_access_var_log_kube_audit
     - directory_permissions_var_log_kube_audit
     - file_ownership_var_log_kube_audit
     - file_permissions_var_log_kube_audit
+    - directory_access_var_log_ocp_audit
+    - directory_permissions_var_log_ocp_audit
+    - file_ownership_var_log_ocp_audit
+    - file_permissions_var_log_ocp_audit
+    - directory_access_var_log_oauth_audit
+    - directory_permissions_var_log_oauth_audit
+    - file_ownership_var_log_oauth_audit
+    - file_permissions_var_log_oauth_audit
 
     # CM-6 CONFIGURATION SETTINGS
     # CM-6(1) CONFIGURATION SETTINGS | AUTOMATED CENTRAL MANAGEMENT / APPLICATION / VERIFICATION
@@ -128,7 +141,6 @@ selections:
     - kubelet_configure_client_ca
     - kubelet_configure_event_creation
     - kubelet_configure_tls_cipher_suites
-    - kubelet_disable_hostname_override
     - kubelet_enable_cert_rotation
     - kubelet_enable_client_cert_rotation
     - kubelet_enable_iptables_util_chains

@@ -43,6 +43,7 @@ selections:
     - oauth_or_oauthclient_inactivity_timeout
     # AC-2, AC-7
     - ocp_idp_no_htpasswd
+    - kubeadmin_removed
     # AC-12
     - oauth_or_oauthclient_token_maxage
 
@@ -54,10 +55,15 @@ selections:
     - banner_or_login_template_set
 
     # AU
+    - var_openshift_audit_profile=WriteRequestBodies
     - audit_profile_set
+
+    # AU-5 RESPONSE TO AUDIT PROCESSING FAILURES
+    - audit_error_alert_exists
 
     # AU-9
     - audit_log_forwarding_enabled
+    - audit_log_forwarding_uses_tls
 
     # CM-6 CONFIGURATION SETTINGS
     # CM-6(1) CONFIGURATION SETTINGS | AUTOMATED CENTRAL MANAGEMENT / APPLICATION / VERIFICATION
@@ -133,6 +139,8 @@ selections:
     - api_server_encryption_provider_config
     - api_server_encryption_provider_cipher
 
+    # SC-7(8)
+    - cluster_wide_proxy_set
 
     # SC-8: TRANSMISSION CONFIDENTIALITY AND INTEGRITY
     - ocp_no_ldap_insecure
@@ -169,3 +177,6 @@ selections:
 
     # SI-7: SOFTWARE, FIRMWARE, AND INFORMATION INTEGRITY
     - file_integrity_exists
+
+    # SC-17: PUBLIC KEY INFRASTRUCTURE CERTIFICATES
+    - default_ingress_ca_replaced

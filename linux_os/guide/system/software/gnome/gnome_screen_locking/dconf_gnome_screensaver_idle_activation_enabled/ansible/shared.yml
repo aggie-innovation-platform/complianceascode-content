@@ -1,4 +1,4 @@
-# platform = multi_platform_rhel,multi_platform_fedora,multi_platform_ol
+# platform = multi_platform_rhel,multi_platform_fedora,multi_platform_ol,multi_platform_sle
 # reboot = false
 # strategy = unknown
 # complexity = low
@@ -15,7 +15,7 @@
 - name: "Prevent user modification of GNOME idle-activation-enabled"
   lineinfile:
     path: /etc/dconf/db/local.d/locks/00-security-settings-lock
-    regexp: '^/org/gnome/desktop/screensaver/idle-activation-enabled'
+    regexp: '^/org/gnome/desktop/screensaver/idle-activation-enabled$'
     line: '/org/gnome/desktop/screensaver/idle-activation-enabled'
     create: yes
 

@@ -1,7 +1,4 @@
-# platform = multi_platform_wrlinux,Red Hat Enterprise Linux 7,Red Hat Enterprise Linux 8,multi_platform_fedora,multi_platform_ol,multi_platform_rhv,multi_platform_sle
-
-# Include source function library.
-. /usr/share/scap-security-guide/remediation_functions
+# platform = multi_platform_all
 
 # First perform the remediation of the syscall rule
 # Retrieve hardware architecture of the underlying system
@@ -13,10 +10,13 @@
 
 for ARCH in "${RULE_ARCHS[@]}"
 do
-	PATTERN="-a always,exit -F arch=$ARCH -S init_module \(-F key=\|-k \).*"
-	GROUP="modules"
-	FULL_RULE="-a always,exit -F arch=$ARCH -S init_module -k modules"
+	ACTION_ARCH_FILTERS="-a always,exit -F arch=$ARCH"
+	OTHER_FILTERS=""
+	AUID_FILTERS=""
+	SYSCALL="init_module"
+	KEY="modules"
+	SYSCALL_GROUPING="init_module finit_module"
 	# Perform the remediation for both possible tools: 'auditctl' and 'augenrules'
-	fix_audit_syscall_rule "auditctl" "$PATTERN" "$GROUP" "$ARCH" "$FULL_RULE"
-	fix_audit_syscall_rule "augenrules" "$PATTERN" "$GROUP" "$ARCH" "$FULL_RULE"
+	{{{ bash_fix_audit_syscall_rule("augenrules", "$ACTION_ARCH_FILTERS", "$OTHER_FILTERS", "$AUID_FILTERS", "$SYSCALL", "$SYSCALL_GROUPING", "$KEY") }}}
+	{{{ bash_fix_audit_syscall_rule("auditctl", "$ACTION_ARCH_FILTERS", "$OTHER_FILTERS", "$AUID_FILTERS", "$SYSCALL", "$SYSCALL_GROUPING", "$KEY") }}}
 done

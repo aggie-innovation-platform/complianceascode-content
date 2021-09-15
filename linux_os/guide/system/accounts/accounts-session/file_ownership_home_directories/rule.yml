@@ -1,6 +1,6 @@
 documentation_complete: true
 
-prodtype: ol7,ol8,rhel7,rhel8,rhv4,wrlinux1019
+prodtype: ol7,ol8,rhel7,rhel8,rhv4,sle12,sle15,wrlinux1019
 
 title: 'All Interactive User Home Directories Must Be Owned By The Primary User'
 
@@ -21,9 +21,11 @@ identifiers:
     cce@rhel7: CCE-80531-7
 
 references:
-    stigid@ol7: OL07-00-020640
+    cis@sle12: 6.2.7
+    cis@sle15: 6.2.7
     disa: CCI-000366
     srg: SRG-OS-000480-GPOS-00227
+    stigid@ol7: OL07-00-020640
     stigid@rhel7: RHEL-07-020640
 
 ocil_clause: 'the user ownership is incorrect'

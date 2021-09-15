@@ -1,6 +1,6 @@
 documentation_complete: true
 
-prodtype: fedora,rhcos4,ol7,ol8,rhel7,rhel8,rhv4
+prodtype: fedora,ol7,ol8,rhcos4,rhel7,rhel8,rhv4,sle12,sle15
 
 title: 'Specify Additional Remote NTP Servers'
 
@@ -14,7 +14,7 @@ description: |-
     {{% elif product == "ol8" %}}
         {{{ weblink(link="https://docs.oracle.com/en/operating-systems/oracle-linux/8/network/ol-nettime.html") }}}
     {{% else %}}
-        {{{ weblink(link="https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/System_Administrators_Guide/ch-Configuring_NTP_Using_the_chrony_Suite.html") }}}
+        {{{ weblink(link="https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/system_administrators_guide/ch-configuring_ntp_using_the_chrony_suite") }}}
     {{% endif %}}
     for more detailed comparison of the features of both of the choices, and for
     further guidance how to choose between the two NTP daemons.
@@ -90,17 +90,18 @@ severity: medium
 platform: machine  # The check uses service_... extended definition, which doesnt support offline mode
 
 identifiers:
+    cce@rhcos4: CCE-82685-9
     cce@rhel7: CCE-27012-4
     cce@rhel8: CCE-80764-4
-    cce@rhcos4: CCE-82685-9
+    cce@sle15: CCE-85834-0
 
 references:
+    cis-csc: 1,14,15,16,3,5,6
+    cobit5: APO11.04,BAI03.05,DSS05.04,DSS05.07,MEA02.01
+    isa-62443-2009: 4.3.3.3.9,4.3.3.5.8,4.3.4.4.7,4.4.2.1,4.4.2.2,4.4.2.4
+    isa-62443-2013: 'SR 2.10,SR 2.11,SR 2.12,SR 2.8,SR 2.9'
+    ism: 0988,1405
+    iso27001-2013: A.12.4.1,A.12.4.2,A.12.4.3,A.12.4.4,A.12.7.1
     nist: CM-6(a),AU-8(1)(a),AU-8(2)
     nist-csf: PR.PT-1
-    isa-62443-2013: 'SR 2.10,SR 2.11,SR 2.12,SR 2.8,SR 2.9'
-    isa-62443-2009: 4.3.3.3.9,4.3.3.5.8,4.3.4.4.7,4.4.2.1,4.4.2.2,4.4.2.4
-    cobit5: APO11.04,BAI03.05,DSS05.04,DSS05.07,MEA02.01
-    iso27001-2013: A.12.4.1,A.12.4.2,A.12.4.3,A.12.4.4,A.12.7.1
-    cis-csc: 1,14,15,16,3,5,6
     pcidss: Req-10.4.3
-    ism: 0988,1405

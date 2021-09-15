@@ -1,6 +1,6 @@
 documentation_complete: true
 
-prodtype: fedora,ol7,ol8,rhel7,rhel8,rhv4
+prodtype: fedora,ol7,ol8,rhel7,rhel8,rhel9,rhv4
 
 title: 'Install the pcsc-lite package'
 
@@ -16,13 +16,14 @@ severity: medium
 identifiers:
     cce@rhel7: CCE-82347-6
     cce@rhel8: CCE-80993-9
+    cce@rhel9: CCE-86280-5
 
 references:
     disa: CCI-001954
+    ism: 1382,1384,1386
     nist: CM-6(a)
     srg: SRG-OS-000375-GPOS-00160
     vmmsrg: SRG-OS-000377-VMM-001530
-    ism: 1382,1384,1386
 
 ocil_clause: 'the package is not installed'
 

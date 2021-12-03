@@ -1,0 +1,75 @@
+name: Gating
+on:
+  create:
+
+env:
+  platforms: 'ubuntu1804 ubuntu2004 rhel7'
+
+jobs:
+  build:
+    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+    name: Build Content
+    runs-on: ubuntu-20.04
+    steps:
+      # we use 3 decimals so we can differentiate our builds from the normal CaC builds
+      # also runs on -prerelease things
+      - name: Check Tag
+        id: check-tag
+        run: echo "${{ github.event.ref }}"|egrep -qe '^v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(-prerelease)?$'
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y cmake ninja-build libopenscap8 libxml2-utils expat xsltproc python3-jinja2 python3-yaml ansible-lint python3-github
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.ref }}
+
+      - name: Build
+        run: |
+          ./build_product --derivatives ${{ env.platforms }}
+
+      - name: Build Ansible Roles
+        run: |
+          PYTHONPATH=. python3 utils/ansible_playbook_to_role.py --build-playbooks-dir ./build/ansible/ --profile tamu --dry-run ./build/ansible_roles
+
+      - name: Lint Ansible Roles
+        run: |
+          ansible-lint -x 204 -x experimental -v ./build/ansible_roles/*
+
+      - name: Install wkhtmltopdf
+        run: |
+          curl -L -o wkhtmltox_0.12.6-1.focal_amd64.deb https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.focal_amd64.deb
+          if [ -f ./wkhtmltox_0.12.6-1.focal_amd64.deb ]; then
+            sudo apt install -y ./wkhtmltox_0.12.6-1.focal_amd64.deb
+          fi
+          rm -fv wkhtmltox_0.12.6-1.focal_amd64.deb
+
+      - name: Convert html to pdf
+        run: |
+          for html in $(ls -1 build/guides/ssg-*-guide-tamu.html); do
+            pdf=$(echo $html|sed -e 's/\.html$/.pdf/')
+            wkhtmltopdf -s Letter $html $pdf
+          done
+
+      - name: Package in a zip
+        run: |
+          TABLES=""
+          for platform in ${{ env.platforms }}; do
+            TABLES="${TABLES} tables/tables-${platform}-all.html"
+          done
+          zip -9r ssg-tamu.zip guides/ssg-*-guide-tamu.html guides/ssg-*-guide-tamu.pdf ${TABLES} ansible/*-playbook-tamu.yml build_config.yml
+        working-directory: build
+
+      - name: Determine if prerelease
+        id: prerelease
+        run: |
+          echo "PRERELEASE=${{ endsWith(github.ref, '-prerelease') }}" >> $GITHUB_ENV
+
+      - name: Release a prerelease archive
+        uses: softprops/action-gh-release@v1
+        with:
+          files: build/ssg-tamu.zip
+          prerelease: ${{ env.PRERELEASE }}
+          fail_on_unmatched_files: true

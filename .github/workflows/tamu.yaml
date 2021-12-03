@@ -1,4 +1,4 @@
-name: Gating
+name: TAMU Release
 on:
   create:
 

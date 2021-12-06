@@ -8,13 +8,12 @@ import ssg.build_yaml
 import ssg.yaml
 import ssg.utils
 
-from ssg.rules import get_rule_path_by_id
-
 
 class InvalidStatus(Exception):
     pass
 
-class Status():
+
+class Status:
     PENDING = "pending"
     PLANNED = "planned"
     NOT_APPLICABLE = "not applicable"
@@ -23,6 +22,7 @@ class Status():
     PARTIAL = "partial"
     SUPPORTED = "supported"
     AUTOMATED = "automated"
+    DOES_NOT_MEET = "does not meet"
 
     def __init__(self, status):
         self.status = status
@@ -41,6 +41,7 @@ class Status():
             cls.PARTIAL,
             cls.SUPPORTED,
             cls.AUTOMATED,
+            cls.DOES_NOT_MEET
         ]
 
         if status not in valid_statuses:
@@ -63,17 +64,19 @@ class Status():
         return False
 
 
-class Control():
+class Control(ssg.build_yaml.SelectionHandler):
     def __init__(self):
+        super(Control, self).__init__()
         self.id = None
-        self.rules = []
-        self.variables = {}
         self.levels = []
         self.notes = ""
         self.title = ""
         self.description = ""
         self.automated = ""
         self.status = None
+        self.mitigation = ""
+        self.artifact_description = ""
+        self.status_justification = ""
 
     def __hash__(self):
         """ Controls are meant to be unique, so using the
@@ -88,6 +91,9 @@ class Control():
         control.description = control_dict.get("description")
         control.status = Status.from_control_info(control.id, control_dict.get("status", None))
         control.automated = control_dict.get("automated", "no")
+        control.status_justification = control_dict.get('status_justification')
+        control.artifact_description = control_dict.get('artifact_description')
+        control.mitigation = control_dict.get('mitigation')
         if control.status == "automated":
             control.automated = "yes"
         if control.automated not in ["yes", "no", "partially"]:
@@ -98,7 +104,7 @@ class Control():
             raise ValueError(msg)
         control.levels = control_dict.get("levels", default_level)
         control.notes = control_dict.get("notes", "")
-        selections = control_dict.get("rules", [])
+        selections = control_dict.get("rules", {})
 
         product = None
         product_dir = None
@@ -109,27 +115,7 @@ class Control():
             benchmark_root = env_yaml.get('benchmark_root', None)
             content_dir = os.path.join(product_dir, benchmark_root)
 
-        for item in selections:
-            if "=" in item:
-                varname, value = item.split("=", 1)
-                control.variables[varname] = value
-            else:
-                # Check if rule is applicable to product, i.e.: prodtype has product id
-                if product is None:
-                    # The product was not specified, simply add the rule
-                    control.rules.append(item)
-                else:
-                    rule_yaml = get_rule_path_by_id(content_dir, item)
-                    if rule_yaml is None:
-                        # item not found in benchmark_root
-                        continue
-                    rule = ssg.build_yaml.Rule.from_yaml(rule_yaml, env_yaml)
-                    if rule.prodtype == "all" or product in rule.prodtype:
-                        control.rules.append(item)
-                    else:
-                        logging.info("Rule {item} doesn't apply to {product}".format(
-                            item=item,
-                            product=product))
+        control.selections = selections
 
         control.related_rules = control_dict.get("related_rules", [])
         control.note = control_dict.get("note")
@@ -153,6 +139,7 @@ class Policy():
         self.id = None
         self.env_yaml = env_yaml
         self.filepath = filepath
+        self.controls_dir = os.path.splitext(filepath)[0]
         self.controls = []
         self.controls_by_id = dict()
         self.levels = []
@@ -177,9 +164,7 @@ class Policy():
             if "controls" in node:
                 for sc in self._parse_controls_tree(node["controls"]):
                     yield sc
-                    control.rules.extend(sc.rules)
-                    control.variables.update(sc.variables)
-                    control.related_rules.extend(sc.related_rules)
+                    control.update_with(sc)
             yield control
 
     def load(self):
@@ -194,7 +179,21 @@ class Policy():
             self.levels.append(level)
             self.levels_by_id[level.id] = level
 
-        controls_tree = ssg.utils.required_key(yaml_contents, "controls")
+        if os.path.exists(self.controls_dir) and os.path.isdir(self.controls_dir):
+            controls_tree = yaml_contents.get("controls", list())
+            files = os.listdir(self.controls_dir)
+            for file in files:
+                if file.endswith('.yml'):
+                    full_path = os.path.join(self.controls_dir, file)
+                    yaml_contents = ssg.yaml.open_and_expand(full_path, self.env_yaml)
+                    for control in yaml_contents['controls']:
+                        controls_tree.append(control)
+                elif file.startswith('.'):
+                    continue
+                else:
+                    raise RuntimeError("Found non yaml file in %s" % self.controls_dir)
+        else:
+            controls_tree = ssg.utils.required_key(yaml_contents, "controls")
         for c in self._parse_controls_tree(controls_tree):
             self.controls.append(c)
             self.controls_by_id[c.id] = c

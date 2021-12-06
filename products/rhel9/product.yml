@@ -2,6 +2,7 @@ product: rhel9
 full_name: Red Hat Enterprise Linux 9
 type: platform
 
+benchmark_id: RHEL-9
 benchmark_root: "../../linux_os/guide"
 
 profiles_root: "./profiles"
@@ -13,6 +14,8 @@ init_system: "systemd"
 # EFI and non-EFI configs are stored in same path, see https://fedoraproject.org/wiki/Changes/UnifyGrubConfig
 grub2_boot_path: "/boot/grub2"
 grub2_uefi_boot_path: "/boot/grub2"
+
+sshd_distributed_config: "true"
 
 dconf_gdm_dir: "distro.d"
 
@@ -36,3 +39,10 @@ cpes:
 # Mapping of CPE platform to package
 platform_package_overrides:
   login_defs: "shadow-utils"
+
+reference_uris:
+  cis: 'https://www.cisecurity.org/benchmark/red_hat_linux/'
+
+centos_pkg_release: "5ccc5b19"
+centos_pkg_version: "8483c65d"
+centos_major_version: "9"

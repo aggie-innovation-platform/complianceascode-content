@@ -1,5 +1,5 @@
-# platform = Red Hat Virtualization 4,multi_platform_rhel
-. /usr/share/scap-security-guide/remediation_functions
+# platform = Red Hat Virtualization 4,multi_platform_ol,multi_platform_rhel
+
 {{{ bash_instantiate_variables("var_auditd_disk_error_action") }}}
 
 #

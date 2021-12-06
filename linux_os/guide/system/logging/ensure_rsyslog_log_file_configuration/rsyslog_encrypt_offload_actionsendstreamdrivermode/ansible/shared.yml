@@ -1,9 +1,10 @@
-# platform = Red Hat Enterprise Linux 8,multi_platform_fedora
+# platform = Oracle Linux 8,Red Hat Enterprise Linux 8,multi_platform_fedora
 # reboot = false
 # strategy = configure
 # complexity = low
 # disruption = low
 
-{{{ ansible_set_config_file(file="/etc/rsyslog.d/encrypt.conf",
-             parameter="\$ActionSendStreamDriverMode", value="1", create=true, separator=" ", separator_regex=" ")
+{{{ ansible_set_config_file_dir(msg, "/etc/rsyslog.conf", "/etc/rsyslog.d", "/etc/rsyslog.conf",
+                                  parameter="$ActionSendStreamDriverMode", value="1", create=true, separator=" ",
+                                  separator_regex=" ")
 }}}

@@ -1,11 +1,8 @@
-# platform = multi_platform_rhel,multi_platform_fedora
+# platform = multi_platform_ol,multi_platform_rhel,multi_platform_fedora
 # reboot = false
 # strategy = configure
 # complexity = low
 # disruption = medium
-
-# include our remediation functions library
-. /usr/share/scap-security-guide/remediation_functions
 
 {{{ bash_instantiate_variables("var_sssd_certificate_verification_digest_function") }}}
 

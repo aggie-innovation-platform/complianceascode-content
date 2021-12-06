@@ -2,6 +2,7 @@ product: fedora
 full_name: Fedora
 type: platform
 
+benchmark_id: FEDORA
 benchmark_root: "../../linux_os/guide"
 
 profiles_root: "./profiles"
@@ -13,6 +14,8 @@ init_system: "systemd"
 # EFI and non-EFI configs are stored in same path, see https://fedoraproject.org/wiki/Changes/UnifyGrubConfig
 grub2_boot_path: "/boot/grub2"
 grub2_uefi_boot_path: "/boot/grub2"
+
+sshd_distributed_config: "true"
 
 dconf_gdm_dir: "distro.d"
 

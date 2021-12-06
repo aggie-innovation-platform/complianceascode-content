@@ -11,7 +11,7 @@ import ssg
 def _create_profile_cache(ssg_root):
     profile_cache = {}
 
-    product_list = ['debian9', 'debian10', 'fedora', 'ol7', 'opensuse',
+    product_list = ['debian9', 'debian10', 'debian11', 'fedora', 'ol7', 'opensuse',
                     'rhel7', 'sle12', 'ubuntu1604', 'ubuntu1804', 'ubuntu2004',
                     'wrlinux']
 
@@ -23,7 +23,7 @@ def _create_profile_cache(ssg_root):
             files.sort()
             for filename in files:
                 profile_path = os.path.join(prod_profiles_dir, filename)
-                parsed_profile = yaml.load(open(profile_path, 'r'))
+                parsed_profile = yaml.load(open(profile_path, 'r'), Loader=yaml.Loader)
                 for _obj in parsed_profile['selections']:
                     obj = _obj
                     if '=' in obj:
@@ -205,7 +205,7 @@ def fix_ocil_clause(ssg_root, path, obj_name):
 def parse_from_yaml(file_contents, lines):
     new_file_arr = file_contents[lines[0]:lines[1] + 1]
     new_file = "\n".join(new_file_arr)
-    return yaml.load(new_file)
+    return yaml.load(new_file, Loader=yaml.Loader)
 
 
 def print_file(file_contents):

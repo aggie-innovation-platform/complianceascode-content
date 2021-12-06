@@ -11,6 +11,7 @@ DATADIR = os.path.join(
     "test_playbook_builder_data"
 )
 
+build_config_yaml = os.path.join(DATADIR, "build_config.yml")
 product_yaml = os.path.join(DATADIR, "product.yml")
 input_dir = os.path.join(DATADIR, "fixes")
 output_dir = os.path.join(DATADIR, "playbooks")
@@ -25,16 +26,17 @@ expected_output_filepath = os.path.join(DATADIR, "selinux_state.yml")
 
 def test_build_rule_playbook():
     playbook_builder = ssg.playbook_builder.PlaybookBuilder(
-        product_yaml, input_dir, output_dir, resolved_rules_dir, resolved_profiles_dir
+        product_yaml, input_dir, output_dir, resolved_rules_dir,
+        resolved_profiles_dir, build_config_yaml
     )
     playbook_builder.build(profile, rule)
 
     assert os.path.exists(real_output_filepath)
 
     with open(real_output_filepath, "r") as real_output:
-        real_output_yaml = yaml.load(real_output)
+        real_output_yaml = yaml.load(real_output, Loader=yaml.Loader)
     with open(expected_output_filepath, "r") as expected_output:
-        expected_output_yaml = yaml.load(expected_output)
+        expected_output_yaml = yaml.load(expected_output, Loader=yaml.Loader)
 
     real_play = real_output_yaml.pop()
     expected_play = expected_output_yaml.pop()

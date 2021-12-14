@@ -95,7 +95,7 @@ selections:
     - sysctl_fs_suid_dumpable
     - sysctl_kernel_randomize_va_space
     - service_apport_disabled
-    - package_libpam-pwquality_installed
+    - package_pam_pwquality_installed
     - var_password_pam_remember=5
     - accounts_password_pam_pwhistory_remember
     - var_password_pam_minlen=20

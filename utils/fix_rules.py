@@ -423,7 +423,7 @@ def fix_empty_identifiers(args):
 
         fix_file(rule_path, product_yaml, fix_empty_identifier, args)
 
-    return int(len(results) > 0)
+    exit(int(len(results) > 0))
 
 
 def fix_empty_references(args):
@@ -440,7 +440,7 @@ def fix_empty_references(args):
 
         fix_file(rule_path, product_yaml, fix_empty_reference, args)
 
-    return int(len(results) > 0)
+    exit(int(len(results) > 0))
 
 
 def find_prefix_cce(args):
@@ -457,7 +457,7 @@ def find_prefix_cce(args):
 
         fix_file(rule_path, product_yaml, fix_prefix_cce, args)
 
-    return int(len(results) > 0)
+    exit(int(len(results) > 0))
 
 
 def find_invalid_cce(args):
@@ -472,9 +472,8 @@ def find_invalid_cce(args):
             print(rule_path + " has one or more invalid CCEs")
             continue
 
-        fix_file(rule_path, product_yaml, fix_invalid_cce, args)
-
-    return int(len(results) > 0)
+        fix_file_prompt(rule_path, product_yaml, fix_invalid_cce)
+    exit(int(len(results) > 0))
 
 
 def find_int_identifiers(args):
@@ -491,7 +490,7 @@ def find_int_identifiers(args):
 
         fix_file(rule_path, product_yaml, fix_int_identifier, args)
 
-    return int(len(results) > 0)
+    exit(int(len(results) > 0))
 
 
 def find_int_references(args):
@@ -508,7 +507,7 @@ def find_int_references(args):
 
         fix_file(rule_path, product_yaml, fix_int_reference, args)
 
-    return int(len(results) > 0)
+    exit(int(len(results) > 0))
 
 
 def duplicate_subkeys(args):
@@ -518,7 +517,7 @@ def duplicate_subkeys(args):
     for result in results:
         print(result[0] + " has one or more duplicated subkeys")
 
-    return int(len(results) > 0)
+    exit(int(len(results) > 0))
 
 
 def sort_subkeys(args):
@@ -533,9 +532,25 @@ def sort_subkeys(args):
             print(rule_path + " has one or more unsorted references")
             continue
 
-        fix_file(rule_path, product_yaml, sort_rule_subkeys, args)
+        fix_file_prompt(rule_path, product_yaml, sort_rule_subkeys, args)
 
-    return int(len(results) > 0)
+    exit(int(len(results) > 0))
+
+
+@command("sort_prodtypes", "sorts the products in the prodtype")
+def sort_prodtypes(args, product_yaml):
+    results = find_rules(args, has_unsorted_prodtype)
+    for result in results:
+        rule_path = result[0]
+        product_yaml = result[2]
+
+        if args.dry_run:
+            print(rule_path + " prodtype is unsorted")
+            continue
+
+        fix_file(rule_path, product_yaml, fix_prodtypes)
+
+    exit(int(len(results) > 0))
 
 
 def parse_args():

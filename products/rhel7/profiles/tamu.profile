@@ -48,7 +48,7 @@ selections:
     - service_abrtd_disabled
     - service_atd_disabled
     - service_autofs_disabled
-    - service_ntpdate_disabled
+#    - service_ntpdate_disabled
     - service_oddjobd_disabled
     - service_qpidd_disabled
     - service_rdisc_disabled

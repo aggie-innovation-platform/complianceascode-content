@@ -3,7 +3,7 @@ on:
   create:
 
 env:
-  platforms: 'ubuntu1804 ubuntu2004 rhel7'
+  platforms: 'ubuntu1804 ubuntu2004 rhel7 rhel8'
 
 jobs:
   build:

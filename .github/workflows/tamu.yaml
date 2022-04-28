@@ -50,7 +50,9 @@ jobs:
         run: |
           for html in $(ls -1 build/guides/ssg-*-guide-tamu.html); do
             pdf=$(echo $html|sed -e 's/\.html$/.pdf/')
-            wkhtmltopdf -s Letter $html $pdf
+            sed -e 's/>(show)/ class aria-expanded="true">(show)/g;s/><div class=\"panel-collapse collapse\"/><div class=\"panel-collapse collapse in\" aria-expanded="true" style/g' $html > temp.html
+            wkhtmltopdf -s Letter temp.html $pdf
+            rm -f temp.html
           done
 
       - name: Package in a zip

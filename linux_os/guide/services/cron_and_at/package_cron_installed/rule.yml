@@ -24,3 +24,4 @@ template:
     vars:
         pkgname: cron
         pkgname@rhel7: cronie
+        pkgname@rhel8: cronie
